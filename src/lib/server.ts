@@ -52,7 +52,7 @@ export async function actor(): Promise<Actor> {
   if (!p) throw new Error("Profile required");
   return { id: p.id, role: p.role as Role };
 }
-export async function batches() {
+export async function batches(withAnchors = false) {
   const { data, error, count } = await db()
     .from("residue_batches")
     .select("document,version", { count: "exact" })
@@ -63,8 +63,40 @@ export async function batches() {
     throw new Error(
       "Workspace record limit exceeded; indexed conflict lookup is required before expanding this deployment",
     );
+  const anchors = new Map<string, Batch["anchor"]>();
+  if (withAnchors && data?.length) {
+    const { data: records, error: anchorError } = await db()
+      .from("residue_batches")
+      .select(
+        "id,proof_anchors(confirmation_status,evidence_root,transaction_hash,proof_version)",
+      )
+      .in(
+        "id",
+        data.map((r) => r.document.id),
+      )
+      .order("proof_version", {
+        referencedTable: "proof_anchors",
+        ascending: false,
+      })
+      .limit(1, { referencedTable: "proof_anchors" });
+    if (anchorError) throw new Error("Anchor status unavailable");
+    for (const record of records ?? []) {
+      const latest = record.proof_anchors[0];
+      if (latest)
+        anchors.set(record.id, {
+          status: latest.confirmation_status as Batch["anchor"]["status"],
+          root: latest.evidence_root,
+          transactionHash: latest.transaction_hash ?? undefined,
+        });
+    }
+  }
   return (data ?? []).map((r) => ({
-    batch: r.document as Batch,
+    batch: {
+      ...r.document,
+      ...(anchors.has(r.document.id)
+        ? { anchor: anchors.get(r.document.id) }
+        : {}),
+    } as Batch,
     version: r.version as number,
   }));
 }

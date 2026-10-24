@@ -886,6 +886,11 @@ export function Workspace({
                                 "/api/anchor/" + current.id,
                                 {},
                               );
+                              const refreshed = await fetch("/api/workspace");
+                              const workspace = await refreshed.json();
+                              if (!refreshed.ok)
+                                throw new Error(workspace.error);
+                              setBatches(workspace.batches);
                               setMessage(r.message);
                             } catch (e) {
                               setMessage(String(e));

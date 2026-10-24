@@ -7,7 +7,7 @@ export default async function Dashboard() {
   if (!configured()) redirect("/login");
   const a = await actor().catch(() => null);
   if (!a) redirect("/login");
-  const all = await batches();
+  const all = await batches(true);
   const { data } = await db()
     .from("farm_plots")
     .select("id,display_name,approximate_region")

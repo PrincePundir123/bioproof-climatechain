@@ -17,7 +17,7 @@ import { appendEvent } from "@/lib/proof";
 export async function GET() {
   try {
     const a = await actor();
-    const all = await batches();
+    const all = await batches(true);
     const visible = all.filter((r) => canRead(a, r.batch));
     const { data: plots } = await db()
       .from("farm_plots")
