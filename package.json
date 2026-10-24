@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:contract": "node scripts/test-contract.mjs",
+    "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs",
     "deploy:contract": "node --env-file=.env.local scripts/deploy-contract.mjs",
     "format": "prettier --write ."
   },
