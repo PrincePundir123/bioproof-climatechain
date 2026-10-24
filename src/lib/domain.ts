@@ -85,20 +85,37 @@ export type Batch = {
 export const measurementSchema = z.object({
   kg: z.coerce.number().positive().max(100000000),
   basis: z.enum(["wet", "dry", "unknown"]),
-  moisture: z.coerce.number().min(0).max(99.9).optional(),
+  moisture: z.preprocess(
+    (value) =>
+      value === null || (typeof value === "string" && value.trim() === "")
+        ? undefined
+        : value,
+    z.coerce.number().min(0).max(99.9).optional(),
+  ),
 });
-export const createSchema = z.object({
-  plotId: z.string().trim().min(1).max(100),
-  region: z.string().trim().min(2).max(120),
-  residue: z.enum([
-    "Rice straw",
-    "Wheat straw",
-    "Sugarcane residue",
-    "Other residue",
-  ]),
-  declared: measurementSchema,
-  totalResidue: z.coerce.number().positive().optional(),
-});
+export const createSchema = z
+  .object({
+    plotId: z.string().trim().min(1).max(100),
+    region: z.string().trim().min(2).max(120),
+    residue: z.enum([
+      "Rice straw",
+      "Wheat straw",
+      "Sugarcane residue",
+      "Other residue",
+    ]),
+    declared: measurementSchema,
+    totalResidue: z.coerce.number().positive().optional(),
+  })
+  .refine(
+    (value) =>
+      value.totalResidue === undefined ||
+      value.declared.kg <= value.totalResidue,
+    {
+      message:
+        "Invalid removal quantity: it cannot exceed total generated residue on the same mass basis.",
+      path: ["declared", "kg"],
+    },
+  );
 export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("DECLARE") }),
   z.object({
