@@ -1,187 +1,285 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
+  ArrowUpRight,
+  ArrowRight,
   Sprout,
+  Truck,
+  Factory,
+  ShieldCheck,
   Fingerprint,
   Network,
-  ArrowUpRight,
-  ShieldCheck,
+  FileCheck2,
+  LockKeyhole,
+  ScanLine,
 } from "lucide-react";
+import { PublicNavigation, PublicFooter } from "@/components/public-shell";
+import { FieldPhoto } from "@/components/field-photo";
+
 export default function Home() {
   return (
     <>
-      <nav>
-        <Link className="brand" href="/">
-          ◈ BioProof
-        </Link>
-        <Link href="/methodology">Our methodology</Link>
-        <Link href="/login">Sign in</Link>
-        <Link className="button" href="/demo">
-          Open workspace <ArrowUpRight size={15} />
-        </Link>
-      </nav>
-      <main>
-        <section
-          style={{
-            padding: "65px 0",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(290px,1fr))",
-            gap: 60,
-            alignItems: "center",
-          }}
-        >
-          <div>
+      <PublicNavigation />
+      <main className="marketing-main" id="main-content">
+        <section className="home-hero">
+          <div className="hero-copy">
             <span className="eyebrow">
-              Field evidence. Independent confidence.
+              <span className="live-dot" /> FIELD EVIDENCE. INDEPENDENT
+              CONFIDENCE.
             </span>
             <h1>
-              Every climate claim begins with{" "}
-              <em style={{ color: "#658547", fontStyle: "normal" }}>
-                evidence.
-              </em>
+              Every climate claim begins with <em>evidence.</em>
             </h1>
-            <p style={{ fontSize: 18 }}>
-              Follow agricultural residue from field to facility. Connect the
-              records, investigate the contradictions, and give every decision a
-              traceable history.
+            <p>
+              From the field to the facility, make every handover visible.
+              Connect agricultural residue, original records, and the people who
+              stand behind them.
             </p>
             <div className="row">
               <Link className="button" href="/demo">
                 Explore live demo <ArrowUpRight size={18} />
               </Link>
-              <Link className="button secondary" href="/verify/BP-001">
-                Verify a claim
+              <Link className="text-link" href="/verify/BP-001">
+                View a sample proof <ArrowRight size={18} />
               </Link>
             </div>
-            <p style={{ fontSize: 12 }}>
-              Built for IEEE ClimateChain · Sustainable Supply Chains
-            </p>
-          </div>
-          <div
-            className="card"
-            style={{ background: "#183f32", color: "white", padding: 36 }}
-          >
-            <div className="row space">
-              <span className="eyebrow" style={{ color: "#d5e5a2" }}>
-                Evidence dossier
+            <div className="hero-footnote">
+              <ShieldCheck size={19} />
+              <span>
+                Evidence first. Human review. Inspectable history.
+                <small>Sample proof uses synthetic data.</small>
               </span>
-              <span className="badge">SYNTHETIC DATA</span>
             </div>
-            <h2>
-              One journey.
-              <br />
-              An inspectable record.
-            </h2>
-            {[
-              ["01", "Declared at the farm", "600 kg · rice straw"],
-              ["02", "Collected with evidence", "600 kg · independent pickup"],
-              [
-                "03",
-                "Received at the facility",
-                "560 kg · discrepancy explained",
-              ],
-              [
-                "04",
-                "Reviewed by an auditor",
-                "Decision recorded · local proof",
-              ],
-            ].map(([n, t, s]) => (
-              <div
-                key={n}
-                style={{
-                  display: "flex",
-                  gap: 20,
-                  padding: "19px 0",
-                  borderTop: "1px solid #416052",
-                }}
-              >
-                <span className="mono" style={{ color: "#d5e5a2" }}>
-                  {n}
-                </span>
-                <div>
-                  <strong>{t}</strong>
-                  <div style={{ fontSize: 12, color: "#b9cbbd", marginTop: 7 }}>
-                    {s}
-                  </div>
-                </div>
-                <ShieldCheck
-                  size={18}
-                  style={{ marginLeft: "auto", color: "#d5e5a2" }}
-                />
+          </div>
+          <div className="hero-visual">
+            <FieldPhoto name="field" preload />
+            <div className="photo-label">
+              01 / THE JOURNEY STARTS IN THE FIELD
+            </div>
+            <div className="hero-note">
+              <Sprout size={23} />
+              <div>
+                <strong>A future for what remains.</strong>
+                <span>Make residue journeys accountable.</span>
               </div>
-            ))}
-            <Link href="/verify/BP-001" style={{ fontSize: 13 }}>
-              Inspect the complete proof →
-            </Link>
+            </div>
           </div>
         </section>
-        <div
-          className="row space"
-          style={{ borderTop: "1px solid #d5ddcf", padding: "25px 0" }}
-        >
-          <span className="eyebrow">
-            From physical records to accountable decisions
-          </span>
-          <span className="muted">
-            Farm → Collection → Processor → Audit → Verification
-          </span>
+        <div className="journey-ribbon">
+          {[
+            [Sprout, "Farmer declaration"],
+            [Truck, "Collector pickup"],
+            [Factory, "Processor intake"],
+            [ShieldCheck, "Auditor review"],
+          ].map(([Icon, label], i) => {
+            const I = Icon as typeof Sprout;
+            return (
+              <div key={String(label)}>
+                <span className="step-index">0{i + 1}</span>
+                <I size={21} />
+                <span>{String(label)}</span>
+                {i < 3 && <ArrowRight size={17} className="ribbon-arrow" />}
+              </div>
+            );
+          })}
         </div>
-        <section style={{ padding: "40px 0 70px" }}>
-          <span className="eyebrow">A closer look, at every claim</span>
-          <h2>Trust comes from what you can inspect.</h2>
-          <div className="grid">
+        <section className="marketing-section story-section">
+          <div className="section-heading">
+            <span className="eyebrow">
+              CONNECTED PEOPLE. CONNECTED RECORDS.
+            </span>
+            <h2>
+              Every handover has a story.
+              <br />
+              <em>Give it a traceable record.</em>
+            </h2>
+            <p>
+              Good evidence starts with the people doing the work. BioProof
+              connects their observations without losing sight of the original
+              source.
+            </p>
+          </div>
+          <div className="photo-story-grid">
+            <article>
+              <FieldPhoto name="harvest" />
+              <span className="eyebrow">01 / AT THE SOURCE</span>
+              <h3>Start with the field.</h3>
+              <p>
+                Register the plot, describe the residue, and record the farmer’s
+                estimate.
+              </p>
+            </article>
+            <article>
+              <FieldPhoto name="collection" />
+              <span className="eyebrow">02 / ALONG THE JOURNEY</span>
+              <h3>Keep each handover visible.</h3>
+              <p>
+                Connect pickup measurements with processor intake and supporting
+                records.
+              </p>
+            </article>
+            <article>
+              <FieldPhoto name="storage" />
+              <span className="eyebrow">03 / BEHIND THE CLAIM</span>
+              <h3>Preserve what supports it.</h3>
+              <p>
+                Keep original documents available for an independent, documented
+                review.
+              </p>
+            </article>
+          </div>
+          <p className="photo-disclaimer">
+            Illustrative photography of agricultural work and stored hay. These
+            scenes are not evidence for BioProof batches.{" "}
+            <Link href="/about#photo-credits">Photo credits ↗</Link>
+          </p>
+        </section>
+        <section className="capability-section">
+          <div className="section-heading">
+            <span className="eyebrow">BUILT AROUND EVIDENCE</span>
+            <h2>Confidence you can inspect.</h2>
+            <p>
+              A connected workspace for the questions that matter: where did it
+              come from, what changed, and who reviewed it?
+            </p>
+          </div>
+          <div className="capability-grid">
             {[
               [
+                Truck,
+                "Trace the custody",
+                "Follow declarations, pickup and intake in one connected history.",
+                "/demo",
+              ],
+              [
+                LockKeyhole,
+                "Keep sources private",
+                "Inspect original files through controlled, time-limited access.",
+                "/methodology",
+              ],
+              [
                 Network,
-                "Two claims. One receipt.",
-                "The conflict graph connects duplicated evidence and explains what needs investigation.",
+                "Investigate the conflicts",
+                "Find reused receipts, mismatched weights and gaps in the record.",
                 "/demo/conflicts",
               ],
               [
+                FileCheck2,
+                "Make review accountable",
+                "Keep decisions, explanations and disputes attached to the evidence.",
+                "/demo/review",
+              ],
+              [
                 Fingerprint,
-                "One altered number. Broken proof.",
-                "Replay the history and change a safe copy in the Integrity Test Lab.",
+                "Replay the proof",
+                "Check the hash chain and explore what a changed record reveals.",
                 "/demo/lab",
               ],
               [
-                Sprout,
-                "Collected does not always mean sustainable.",
-                "SoilSafe surfaces missing context and the need for site-specific agronomic review.",
-                "/demo/batches/BP-004",
+                ScanLine,
+                "Share a public record",
+                "Let others inspect the summary while original evidence stays private.",
+                "/verify/BP-001",
               ],
-            ].map(([Icon, title, body, href]) => {
+            ].map(([Icon, title, description, href]) => {
               const I = Icon as typeof Sprout;
               return (
                 <Link
-                  className="card"
-                  style={{ textDecoration: "none" }}
-                  href={href as string}
-                  key={title as string}
+                  href={String(href)}
+                  className="capability-card"
+                  key={String(title)}
                 >
-                  <I size={30} />
-                  <h3>{title as string}</h3>
-                  <p>{body as string}</p>
-                  <span>Explore evidence →</span>
+                  <I size={27} />
+                  <h3>{String(title)}</h3>
+                  <p>{String(description)}</p>
+                  <span>
+                    Explore <ArrowUpRight size={16} />
+                  </span>
                 </Link>
               );
             })}
           </div>
         </section>
-        <section className="card">
-          <span className="eyebrow">Designed for scrutiny</span>
-          <h2>Integrity is measurable. Physical truth still needs people.</h2>
+        <section className="marketing-section product-section">
+          <div className="section-heading">
+            <span className="eyebrow">
+              ONE WORKSPACE. AN INSPECTABLE JOURNEY.
+            </span>
+            <h2>
+              See the record.
+              <br />
+              <em>Understand the decision.</em>
+            </h2>
+            <p>
+              Move from an overview to the supporting evidence. A clearer view
+              for farmers, collectors, processors and auditors.
+            </p>
+            <Link href="/demo" className="text-link">
+              Take a closer look <ArrowUpRight size={18} />
+            </Link>
+          </div>
+          <div className="product-preview">
+            <div className="preview-bar">
+              <span />
+              <span />
+              <span />
+              <small>BioProof / Synthetic demo workspace</small>
+            </div>
+            <Image
+              src="/images/bioproof/workspace-preview.png"
+              width={1440}
+              height={1000}
+              alt="BioProof synthetic demo showing batch records and investigation actions"
+              sizes="(max-width: 900px) 100vw, 800px"
+            />
+            <p>Actual BioProof interface · Synthetic demonstration data</p>
+          </div>
+        </section>
+        <section className="soil-section">
+          <FieldPhoto name="soil" />
+          <div>
+            <span className="eyebrow">LEAVE ROOM FOR THE LAND</span>
+            <h2>Responsible removal starts with better questions.</h2>
+            <p>
+              Residue is also soil cover, nutrients, and organic matter.
+              SoilSafe brings removal estimates and agronomic review into the
+              conversation.
+            </p>
+            <p>
+              Its guidance is advisory. A recorded quantity does not establish
+              sustainable removal or a certified climate benefit.
+            </p>
+            <Link className="button secondary" href="/methodology">
+              Understand SoilSafe <ArrowUpRight size={17} />
+            </Link>
+          </div>
+        </section>
+        <section className="closing-section">
+          <span className="eyebrow">FROM FIELD TO CONFIDENCE</span>
+          <h2>
+            Follow the journey.
+            <br />
+            Question the evidence.
+          </h2>
           <p>
-            BioProof combines independent custody records, deterministic checks,
-            and human decisions. Blockchain anchors can show that an approved
-            record has not changed; they cannot certify what happened in a
-            field. BioProof does not issue carbon credits.
+            Explore a complete synthetic workflow, or sign in to work with your
+            own records.
           </p>
-          <Link href="/methodology">Read our verification boundaries →</Link>
+          <div className="row">
+            <Link href="/demo" className="button">
+              Try the demo <ArrowUpRight size={18} />
+            </Link>
+            <Link href="/login" className="button secondary">
+              Sign in to BioProof
+            </Link>
+          </div>
+          <small>
+            Record integrity supports accountability. It does not prove physical
+            truth or issue carbon credits.
+          </small>
         </section>
       </main>
-      <footer>
-        BioProof · Every Climate Claim Begins With Evidence.{" "}
-        <span style={{ float: "right" }}>IEEE ClimateChain 2026</span>
-      </footer>
+      <PublicFooter />
     </>
   );
 }
