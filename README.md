@@ -68,7 +68,7 @@ See [architecture](docs/ARCHITECTURE.md), [data model](docs/DATA_MODEL.md), and 
 ## Configure operational accounts
 
 1. Copy `.env.example` to `.env.local`; never commit secrets.
-2. Create a Supabase project. Apply `supabase/migrations/001_evidence.sql`, then `002_ai_limits.sql` through the SQL editor or linked Supabase migration CLI.
+2. Create a Supabase project. Apply `supabase/migrations/001_evidence.sql`, then `002_ai_limits.sql` and `003_atomic_ai_budget.sql` through the SQL editor or linked Supabase migration CLI.
 3. Set Supabase URL, public anon key and server-only service-role key. Restart Next.js.
 4. Create confirmed users through Supabase administrator tools. The profile trigger assigns FARMER; clients cannot self-select privileged roles.
 5. Assign separate COLLECTOR, PROCESSOR and AUDITOR profiles as a trusted administrator.
@@ -85,6 +85,14 @@ where id = 'replace-with-auth-user-uuid';
 ```
 
 The migration creates a private evidence bucket. JPEG, PNG and PDF uploads are checked by size and signature, limited to 5 MB and 30 assets per batch. Hosting request limits can be lower; keep uploads below those limits or add direct signed uploads before increasing capacity.
+
+## Optional AI and blockchain setup
+
+Run `npm run setup:optional` to prepare missing local settings and a dedicated testnet signer.
+Add your Gemini key in `.env.local`, fund the printed address with Sepolia test ETH,
+then run `npm run check:optional`. Once funded, `npm run deploy:contract` deploys
+the registry and saves its address locally. Follow [optional feature setup](docs/OPTIONAL_FEATURES.md)
+for the account actions and remaining configuration.
 
 ## Environment
 
