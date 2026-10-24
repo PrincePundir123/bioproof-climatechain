@@ -1,3 +1,187 @@
-import Link from 'next/link';
-import { Sprout, Fingerprint, Network, ArrowUpRight, ShieldCheck } from 'lucide-react';
-export default function Home(){return <><nav><Link className="brand" href="/">◈ BioProof</Link><Link href="/methodology">Our methodology</Link><Link href="/login">Sign in</Link><Link className="button" href="/demo">Open workspace <ArrowUpRight size={15}/></Link></nav><main><section style={{padding:'65px 0',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(290px,1fr))',gap:60,alignItems:'center'}}><div><span className="eyebrow">Field evidence. Independent confidence.</span><h1>Every climate claim begins with <em style={{color:'#658547',fontStyle:'normal'}}>evidence.</em></h1><p style={{fontSize:18}}>Follow agricultural residue from field to facility. Connect the records, investigate the contradictions, and give every decision a traceable history.</p><div className="row"><Link className="button" href="/demo">Explore live demo <ArrowUpRight size={18}/></Link><Link className="button secondary" href="/verify/BP-001">Verify a claim</Link></div><p style={{fontSize:12}}>Built for IEEE ClimateChain · Sustainable Supply Chains</p></div><div className="card" style={{background:'#183f32',color:'white',padding:36}}><div className="row space"><span className="eyebrow" style={{color:'#d5e5a2'}}>Evidence dossier</span><span className="badge">SYNTHETIC DATA</span></div><h2>One journey.<br/>An inspectable record.</h2>{[['01','Declared at the farm','600 kg · rice straw'],['02','Collected with evidence','600 kg · independent pickup'],['03','Received at the facility','560 kg · discrepancy explained'],['04','Reviewed by an auditor','Decision recorded · local proof']].map(([n,t,s])=><div key={n} style={{display:'flex',gap:20,padding:'19px 0',borderTop:'1px solid #416052'}}><span className="mono" style={{color:'#d5e5a2'}}>{n}</span><div><strong>{t}</strong><div style={{fontSize:12,color:'#b9cbbd',marginTop:7}}>{s}</div></div><ShieldCheck size={18} style={{marginLeft:'auto',color:'#d5e5a2'}}/></div>)}<Link href="/verify/BP-001" style={{fontSize:13}}>Inspect the complete proof →</Link></div></section><div className="row space" style={{borderTop:'1px solid #d5ddcf',padding:'25px 0'}}><span className="eyebrow">From physical records to accountable decisions</span><span className="muted">Farm → Collection → Processor → Audit → Verification</span></div><section style={{padding:'40px 0 70px'}}><span className="eyebrow">A closer look, at every claim</span><h2>Trust comes from what you can inspect.</h2><div className="grid">{[[Network,'Two claims. One receipt.','The conflict graph connects duplicated evidence and explains what needs investigation.','/demo/conflicts'],[Fingerprint,'One altered number. Broken proof.','Replay the history and change a safe copy in the Integrity Test Lab.','/demo/lab'],[Sprout,"Collected does not always mean sustainable.",'SoilSafe surfaces missing context and the need for site-specific agronomic review.','/demo/batches/BP-004']].map(([Icon,title,body,href])=>{const I=Icon as typeof Sprout;return <Link className="card" style={{textDecoration:'none'}} href={href as string} key={title as string}><I size={30}/><h3>{title as string}</h3><p>{body as string}</p><span>Explore evidence →</span></Link>})}</div></section><section className="card"><span className="eyebrow">Designed for scrutiny</span><h2>Integrity is measurable. Physical truth still needs people.</h2><p>BioProof combines independent custody records, deterministic checks, and human decisions. Blockchain anchors can show that an approved record has not changed; they cannot certify what happened in a field. BioProof does not issue carbon credits.</p><Link href="/methodology">Read our verification boundaries →</Link></section></main><footer>BioProof · Every Climate Claim Begins With Evidence. <span style={{float:'right'}}>IEEE ClimateChain 2026</span></footer></>}
+import Link from "next/link";
+import {
+  Sprout,
+  Fingerprint,
+  Network,
+  ArrowUpRight,
+  ShieldCheck,
+} from "lucide-react";
+export default function Home() {
+  return (
+    <>
+      <nav>
+        <Link className="brand" href="/">
+          ◈ BioProof
+        </Link>
+        <Link href="/methodology">Our methodology</Link>
+        <Link href="/login">Sign in</Link>
+        <Link className="button" href="/demo">
+          Open workspace <ArrowUpRight size={15} />
+        </Link>
+      </nav>
+      <main>
+        <section
+          style={{
+            padding: "65px 0",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(290px,1fr))",
+            gap: 60,
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <span className="eyebrow">
+              Field evidence. Independent confidence.
+            </span>
+            <h1>
+              Every climate claim begins with{" "}
+              <em style={{ color: "#658547", fontStyle: "normal" }}>
+                evidence.
+              </em>
+            </h1>
+            <p style={{ fontSize: 18 }}>
+              Follow agricultural residue from field to facility. Connect the
+              records, investigate the contradictions, and give every decision a
+              traceable history.
+            </p>
+            <div className="row">
+              <Link className="button" href="/demo">
+                Explore live demo <ArrowUpRight size={18} />
+              </Link>
+              <Link className="button secondary" href="/verify/BP-001">
+                Verify a claim
+              </Link>
+            </div>
+            <p style={{ fontSize: 12 }}>
+              Built for IEEE ClimateChain · Sustainable Supply Chains
+            </p>
+          </div>
+          <div
+            className="card"
+            style={{ background: "#183f32", color: "white", padding: 36 }}
+          >
+            <div className="row space">
+              <span className="eyebrow" style={{ color: "#d5e5a2" }}>
+                Evidence dossier
+              </span>
+              <span className="badge">SYNTHETIC DATA</span>
+            </div>
+            <h2>
+              One journey.
+              <br />
+              An inspectable record.
+            </h2>
+            {[
+              ["01", "Declared at the farm", "600 kg · rice straw"],
+              ["02", "Collected with evidence", "600 kg · independent pickup"],
+              [
+                "03",
+                "Received at the facility",
+                "560 kg · discrepancy explained",
+              ],
+              [
+                "04",
+                "Reviewed by an auditor",
+                "Decision recorded · local proof",
+              ],
+            ].map(([n, t, s]) => (
+              <div
+                key={n}
+                style={{
+                  display: "flex",
+                  gap: 20,
+                  padding: "19px 0",
+                  borderTop: "1px solid #416052",
+                }}
+              >
+                <span className="mono" style={{ color: "#d5e5a2" }}>
+                  {n}
+                </span>
+                <div>
+                  <strong>{t}</strong>
+                  <div style={{ fontSize: 12, color: "#b9cbbd", marginTop: 7 }}>
+                    {s}
+                  </div>
+                </div>
+                <ShieldCheck
+                  size={18}
+                  style={{ marginLeft: "auto", color: "#d5e5a2" }}
+                />
+              </div>
+            ))}
+            <Link href="/verify/BP-001" style={{ fontSize: 13 }}>
+              Inspect the complete proof →
+            </Link>
+          </div>
+        </section>
+        <div
+          className="row space"
+          style={{ borderTop: "1px solid #d5ddcf", padding: "25px 0" }}
+        >
+          <span className="eyebrow">
+            From physical records to accountable decisions
+          </span>
+          <span className="muted">
+            Farm → Collection → Processor → Audit → Verification
+          </span>
+        </div>
+        <section style={{ padding: "40px 0 70px" }}>
+          <span className="eyebrow">A closer look, at every claim</span>
+          <h2>Trust comes from what you can inspect.</h2>
+          <div className="grid">
+            {[
+              [
+                Network,
+                "Two claims. One receipt.",
+                "The conflict graph connects duplicated evidence and explains what needs investigation.",
+                "/demo/conflicts",
+              ],
+              [
+                Fingerprint,
+                "One altered number. Broken proof.",
+                "Replay the history and change a safe copy in the Integrity Test Lab.",
+                "/demo/lab",
+              ],
+              [
+                Sprout,
+                "Collected does not always mean sustainable.",
+                "SoilSafe surfaces missing context and the need for site-specific agronomic review.",
+                "/demo/batches/BP-004",
+              ],
+            ].map(([Icon, title, body, href]) => {
+              const I = Icon as typeof Sprout;
+              return (
+                <Link
+                  className="card"
+                  style={{ textDecoration: "none" }}
+                  href={href as string}
+                  key={title as string}
+                >
+                  <I size={30} />
+                  <h3>{title as string}</h3>
+                  <p>{body as string}</p>
+                  <span>Explore evidence →</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+        <section className="card">
+          <span className="eyebrow">Designed for scrutiny</span>
+          <h2>Integrity is measurable. Physical truth still needs people.</h2>
+          <p>
+            BioProof combines independent custody records, deterministic checks,
+            and human decisions. Blockchain anchors can show that an approved
+            record has not changed; they cannot certify what happened in a
+            field. BioProof does not issue carbon credits.
+          </p>
+          <Link href="/methodology">Read our verification boundaries →</Link>
+        </section>
+      </main>
+      <footer>
+        BioProof · Every Climate Claim Begins With Evidence.{" "}
+        <span style={{ float: "right" }}>IEEE ClimateChain 2026</span>
+      </footer>
+    </>
+  );
+}
