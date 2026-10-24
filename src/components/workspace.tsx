@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useDemo } from "./demo-provider";
+import { Brand } from "./public-shell";
+import { StatusBadge } from "./status-badge";
 import {
   Sprout,
   LayoutDashboard,
@@ -78,6 +80,13 @@ export function Workspace({
   }));
   const current = selected ? all.find((b) => b.id === selected.id) : undefined;
   const findings = all.flatMap((b) => b.findings);
+  const visibleBatches = all.filter(
+    (b) =>
+      (section !== "review" ||
+        ["UNDER_REVIEW", "RECEIVED", "DISPUTED"].includes(b.status)) &&
+      (filter === "ALL" || b.status === filter) &&
+      `${b.id} ${b.region}`.toLowerCase().includes(query.toLowerCase()),
+  );
   const unresolved = findings.filter((f) => !f.resolution);
   async function request(url: string, body: unknown) {
     const response = await fetch(url, {
@@ -226,10 +235,8 @@ export function Workspace({
   }[section];
   return (
     <div className="workspace">
-      <aside>
-        <Link href="/" className="brand">
-          ◈ BioProof<span>FIELD EVIDENCE PLATFORM</span>
-        </Link>
+      <aside aria-label="Workspace navigation">
+        <Brand />
         <div className="eyebrow" style={{ padding: "30px 15px 12px" }}>
           Workspace
         </div>
@@ -245,6 +252,7 @@ export function Workspace({
             <Link
               key={label as string}
               className={path === href ? "active" : ""}
+              aria-current={path === href ? "page" : undefined}
               href={href as string}
             >
               <I size={18} />
@@ -309,13 +317,16 @@ export function Workspace({
             )}
           </div>
         </header>
-        <main>
-          <div className="row space">
+        <main
+          id="workspace-content"
+          className={`workspace-main section-${section}`}
+        >
+          <div className="row space page-heading">
             <div>
               <span className="eyebrow">
                 {demo ? "Demonstration · October 2026" : "Evidence operations"}
               </span>
-              <h1 style={{ fontSize: 36, margin: "12px 0" }}>{title}</h1>
+              <h1>{title}</h1>
               <p style={{ marginTop: 0 }}>
                 Evidence first. Every handoff accounted for.
               </p>
@@ -401,7 +412,12 @@ export function Workspace({
                     </select>
                   </div>
                 </div>
-                <div style={{ overflowX: "auto" }}>
+                <div
+                  className="table-scroll"
+                  tabIndex={0}
+                  role="region"
+                  aria-label="Batch records"
+                >
                   <table>
                     <thead>
                       <tr>
@@ -414,59 +430,51 @@ export function Workspace({
                       </tr>
                     </thead>
                     <tbody>
-                      {all
-                        .filter(
-                          (b) =>
-                            (section !== "review" ||
-                              ["UNDER_REVIEW", "RECEIVED", "DISPUTED"].includes(
-                                b.status,
-                              )) &&
-                            (filter === "ALL" || b.status === filter) &&
-                            `${b.id} ${b.region}`
-                              .toLowerCase()
-                              .includes(query.toLowerCase()),
-                        )
-                        .map((b) => (
-                          <tr key={b.id}>
-                            <td>
-                              <Link href={base + "/batches/" + b.id}>
-                                <strong>{b.id}</strong>
-                              </Link>
-                              <div
-                                className="muted"
-                                style={{ fontSize: 12, marginTop: 5 }}
-                              >
-                                {b.region}
-                              </div>
-                            </td>
-                            <td>{b.residue}</td>
-                            <td>
-                              {b.intake?.kg ?? b.declared.kg} kg{" "}
-                              <small>{b.declared.basis}</small>
-                            </td>
-                            <td>
-                              <span className="badge">
-                                {b.status.replaceAll("_", " ")}
-                              </span>
-                            </td>
-                            <td>
-                              {b.findings.filter((f) => !f.resolution).length ||
-                                "—"}
-                            </td>
-                            <td>
-                              <Link
-                                aria-label={"Open " + b.id}
-                                href={base + "/batches/" + b.id}
-                              >
-                                <ArrowUpRight size={18} />
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
+                      {visibleBatches.map((b) => (
+                        <tr key={b.id}>
+                          <td>
+                            <Link href={base + "/batches/" + b.id}>
+                              <strong>{b.id}</strong>
+                            </Link>
+                            <div
+                              className="muted"
+                              style={{ fontSize: 12, marginTop: 5 }}
+                            >
+                              {b.region}
+                            </div>
+                          </td>
+                          <td>{b.residue}</td>
+                          <td>
+                            {b.intake?.kg ?? b.declared.kg} kg{" "}
+                            <small>{b.declared.basis}</small>
+                          </td>
+                          <td>
+                            <StatusBadge status={b.status} />
+                          </td>
+                          <td>
+                            {b.findings.filter((f) => !f.resolution).length ||
+                              "—"}
+                          </td>
+                          <td>
+                            <Link
+                              aria-label={"Open " + b.id}
+                              href={base + "/batches/" + b.id}
+                            >
+                              <ArrowUpRight size={18} />
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                   {!all.length && (
                     <p>No records yet. Create a plot and your first batch.</p>
+                  )}
+                  {!!all.length && !visibleBatches.length && (
+                    <p className="empty-state">
+                      No batches match this view. Try another search or status
+                      filter.
+                    </p>
                   )}
                 </div>
               </div>
@@ -628,9 +636,7 @@ export function Workspace({
           {section === "detail" && current && (
             <>
               <div className="row" style={{ marginBottom: 24 }}>
-                <span className="badge">
-                  {current.status.replaceAll("_", " ")}
-                </span>
+                <StatusBadge status={current.status} />
                 <span>
                   {current.region} · {current.residue}
                 </span>
@@ -643,21 +649,30 @@ export function Workspace({
               </div>
               <div className="detail-grid">
                 <div className="stack">
-                  <div className="card">
+                  <div className="card custody-card">
                     <h2>Chain of custody</h2>
                     <div className="grid metrics">
                       {[
-                        [current.declared.kg, "Farmer declaration"],
-                        [current.pickup?.kg ?? "—", "Collector pickup"],
-                        [current.intake?.kg ?? "—", "Processor intake"],
-                      ].map(([v, l]) => (
-                        <div key={l}>
-                          <span className="eyebrow">{l}</span>
-                          <strong>
-                            {v} <small>kg</small>
-                          </strong>
-                        </div>
-                      ))}
+                        [current.declared, "Farmer declaration"],
+                        [current.pickup, "Collector pickup"],
+                        [current.intake, "Processor intake"],
+                      ].map(([measurement, label]) => {
+                        const m = measurement as Batch["declared"] | undefined;
+                        const l = label as string;
+                        return (
+                          <div key={l}>
+                            <span className="eyebrow">{l}</span>
+                            <strong>
+                              {m?.kg ?? "—"} <small>kg</small>
+                            </strong>
+                            <span className="measurement-note">
+                              {m
+                                ? `${m.basis} basis${m.moisture !== undefined ? ` · ${m.moisture}% moisture` : ""}`
+                                : "Not recorded"}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                     <p>
                       Mass basis: {current.declared.basis}. Processing pathway:{" "}
@@ -665,7 +680,7 @@ export function Workspace({
                       pathway is not proof the process occurred.
                     </p>
                   </div>
-                  <div className="card">
+                  <div className="card source-card">
                     <h2>Evidence & original records</h2>
                     <p>
                       AI extraction{" "}
@@ -674,6 +689,15 @@ export function Workspace({
                         : "is optional; open an uploaded record to request it"}
                       .
                     </p>
+                    {!current.evidence.length && (
+                      <div className="empty-state">
+                        <FileCheck2 size={24} />
+                        <p>
+                          No source files attached yet. Supporting documents
+                          remain separate from the recorded measurements.
+                        </p>
+                      </div>
+                    )}
                     {current.evidence.map((e) => (
                       <div className="evidence-row" key={e.id}>
                         <div>
@@ -728,7 +752,7 @@ export function Workspace({
                         </label>
                       )}
                   </div>
-                  <div className="card">
+                  <div className="card proof-card">
                     <h2>Proof replay</h2>
                     <p>
                       Append-only event history. Local integrity and blockchain
@@ -772,7 +796,7 @@ export function Workspace({
                   </div>
                 </div>
                 <div className="stack">
-                  <div className="card">
+                  <div className="card soil-card">
                     <h3>SoilSafe residue guard</h3>
                     <span className="badge">
                       {soilSafe(current).state.replaceAll("_", " ")}
@@ -791,7 +815,12 @@ export function Workspace({
                             borderTop: "1px solid #e5e9df",
                           }}
                         >
-                          <strong>{f.code.replaceAll("_", " ")}</strong>
+                          <span className={`badge severity-${f.severity}`}>
+                            {f.severity}
+                          </span>
+                          <strong className="finding-title">
+                            {f.code.replaceAll("_", " ")}
+                          </strong>
                           <p>{f.explanation}</p>
                           {f.resolution ? (
                             <p className="warning">
@@ -821,7 +850,7 @@ export function Workspace({
                       </p>
                     )}
                   </div>
-                  <div className="card">
+                  <div className="card action-card">
                     <h3>Next action · {actor.role.toLowerCase()}</h3>
                     <ActionPanel
                       b={current}
@@ -833,7 +862,7 @@ export function Workspace({
                       <p className="warning">{current.decision.reason}</p>
                     )}
                   </div>
-                  <div className="card">
+                  <div className="card anchor-card">
                     <h3>Blockchain anchor</h3>
                     <span className="badge">
                       {current.anchor.status.replaceAll("_", " ")}
@@ -950,7 +979,7 @@ export function Workspace({
             </div>
           )}
           {section === "new" && (
-            <div className="card" style={{ maxWidth: 720 }}>
+            <div className="card create-card" style={{ maxWidth: 800 }}>
               <span className="eyebrow">
                 1. Plot & source · 2. Quantity · 3. Declare from dossier
               </span>
@@ -960,8 +989,12 @@ export function Workspace({
               ) : (
                 <>
                   <form onSubmit={create}>
-                    <label>Registered plot</label>
-                    <select name="plotId" required>
+                    <div className="form-section-heading">
+                      <span>01</span>
+                      <h3>Plot & source</h3>
+                    </div>
+                    <label htmlFor="batch-plot">Registered plot</label>
+                    <select id="batch-plot" name="plotId" required>
                       {demo ? (
                         <option value="demo-plot-new">
                           Demonstration plot
@@ -983,14 +1016,15 @@ export function Workspace({
                         Register a plot
                       </button>
                     )}
-                    <label>General origin region</label>
+                    <label htmlFor="batch-region">General origin region</label>
                     <input
+                      id="batch-region"
                       required
                       name="region"
                       defaultValue="Punjab, India"
                     />
-                    <label>Crop residue</label>
-                    <select name="residue">
+                    <label htmlFor="batch-residue">Crop residue</label>
+                    <select id="batch-residue" name="residue">
                       {[
                         "Rice straw",
                         "Wheat straw",
@@ -1000,10 +1034,17 @@ export function Workspace({
                         <option key={r}>{r}</option>
                       ))}
                     </select>
+                    <div className="form-section-heading">
+                      <span>02</span>
+                      <h3>Quantity & measurement</h3>
+                    </div>
                     <div className="grid">
                       <div>
-                        <label>Estimated available quantity (kg)</label>
+                        <label htmlFor="batch-kg">
+                          Estimated available quantity (kg)
+                        </label>
                         <input
+                          id="batch-kg"
                           required
                           type="number"
                           name="kg"
@@ -1012,18 +1053,24 @@ export function Workspace({
                         />
                       </div>
                       <div>
-                        <label>Mass basis</label>
-                        <select name="basis">
+                        <label htmlFor="batch-basis">Mass basis</label>
+                        <select id="batch-basis" name="basis">
                           <option value="wet">Wet mass</option>
                           <option value="dry">Dry mass</option>
                           <option value="unknown">Unknown</option>
                         </select>
                       </div>
                     </div>
-                    <label>
+                    <label htmlFor="batch-total">
                       Total generated residue, same basis (kg, optional)
                     </label>
-                    <input type="number" name="total" min="0.01" step="0.01" />
+                    <input
+                      id="batch-total"
+                      type="number"
+                      name="total"
+                      min="0.01"
+                      step="0.01"
+                    />
                     <p>
                       These are farmer estimates. SoilSafe requests a
                       site-specific review; this form does not certify
@@ -1059,7 +1106,14 @@ export function Workspace({
                         "approximate_region",
                       ].map((n) => (
                         <label key={n}>
-                          {n.replaceAll("_", " ")}
+                          {
+                            {
+                              display_name: "Plot name",
+                              crop_type: "Crop type",
+                              area_hectares: "Area (hectares)",
+                              approximate_region: "Approximate region",
+                            }[n]
+                          }
                           <input
                             name={n}
                             required

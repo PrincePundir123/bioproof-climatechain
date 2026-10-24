@@ -7,9 +7,15 @@ export default async function Evidence({
 }) {
   const { id } = await params;
   return (
-    <main>
-      <Link href="/dashboard">← Workspace</Link>
-      <h1 style={{ fontSize: 38 }}>Inspect source evidence</h1>
+    <main className="evidence-inspection">
+      <Link href="/dashboard" className="text-link">
+        ← Workspace
+      </Link>
+      <h1>Inspect source evidence</h1>
+      <p>
+        Compare the original document with the fields you confirm. Original
+        evidence remains private.
+      </p>
       <EvidenceViewer id={id} />
     </main>
   );

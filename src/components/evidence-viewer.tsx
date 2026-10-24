@@ -54,8 +54,14 @@ export function EvidenceViewer({ id }: { id: string }) {
     }
   }
   return (
-    <div className="detail-grid">
+    <div className="detail-grid evidence-viewer">
       <div className="card">
+        <span className="eyebrow">01 / ORIGINAL SOURCE</span>
+        <h2>Inspect the document</h2>
+        <p>
+          Request a private link to view the original. If it expires, request a
+          new link.
+        </p>
         <button
           className="button secondary"
           disabled={busy}
@@ -80,6 +86,7 @@ export function EvidenceViewer({ id }: { id: string }) {
         )}
       </div>
       <div className="card">
+        <span className="eyebrow">02 / REVIEW & CONFIRM</span>
         <h2>AI suggestion — requires confirmation</h2>
         <p>
           Manual entry works without an AI key. Extracted data never approves a

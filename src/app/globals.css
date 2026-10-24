@@ -989,6 +989,15 @@ pre {
 .login-photo-copy p {
   color: #d9e7d5;
 }
+.login-photo-copy .eyebrow {
+  color: #c4dab5;
+}
+.measurement-note {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 8px;
+}
 .login-content {
   padding: 70px clamp(24px, 5vw, 90px);
   align-self: center;
@@ -1201,5 +1210,532 @@ pre {
   *::after {
     transition: none !important;
     animation: none !important;
+  }
+}
+/* Evidence workspace */
+.workspace {
+  background: #f5f7f3;
+}
+.workspace aside {
+  background: var(--forest);
+  color: white;
+  width: 246px;
+  padding: 32px 17px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.workspace aside .brand {
+  display: flex;
+  color: white;
+  font-size: 25px;
+  margin: 0 10px 10px;
+}
+.workspace aside .brand-tagline {
+  color: #b0c6ac;
+}
+.workspace aside .eyebrow {
+  color: #b4c6ad;
+}
+.workspace aside > a:not(.brand) {
+  color: #d6e3d9;
+  padding: 14px;
+  margin: 4px 0;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.workspace aside > a:not(.brand):hover {
+  background: #ffffff0d;
+}
+.workspace aside > a.active {
+  background: #ffffff16;
+  color: white;
+  box-shadow: inset 3px 0 #c6df9f;
+}
+.workspace aside .aside-bottom {
+  padding: 35px 10px 0;
+}
+.workspace aside .aside-bottom p {
+  color: #bacdbd;
+  font-size: 11px;
+}
+.workspace aside .badge {
+  color: #dcebd4;
+  background: #264f39;
+  border-color: #49654a;
+}
+.workspace aside .aside-bottom > a {
+  color: #d4e6c7;
+  text-underline-offset: 4px;
+}
+.workspace header {
+  padding: 17px 34px;
+  background: white;
+  min-height: 80px;
+}
+.workspace header select {
+  min-height: 40px;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.workspace main {
+  padding: 32px;
+}
+.page-heading {
+  margin-bottom: 24px;
+  align-items: flex-start;
+}
+.page-heading h1 {
+  font-size: clamp(26px, 2.6vw, 36px);
+  margin: 10px 0;
+  letter-spacing: -0.04em;
+}
+.page-heading p {
+  font-size: 13px;
+}
+.page-heading > .button {
+  margin-top: 24px;
+}
+.metrics .card {
+  border-top: 3px solid #9cb88a;
+  padding: 22px;
+}
+.metrics strong {
+  margin-top: 17px;
+  font-size: 32px;
+  color: var(--forest);
+  font-variant-numeric: tabular-nums;
+}
+.metrics .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.table-scroll {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+.table-scroll table {
+  min-width: 650px;
+}
+.table-scroll td:first-child {
+  min-width: 150px;
+  max-width: 250px;
+  overflow-wrap: anywhere;
+}
+.table-scroll td:first-child a {
+  text-decoration: none;
+  color: var(--forest);
+}
+.table-scroll td:last-child a {
+  display: inline-flex;
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--sage);
+}
+.table-scroll th {
+  background: #f4f7f1;
+  padding: 14px 12px;
+  color: #53654f;
+}
+.table-scroll td {
+  padding: 20px 12px;
+}
+.table-scroll tbody tr:hover {
+  background: #f8faf5;
+}
+.table-scroll small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+.feature-link {
+  position: relative;
+  border-color: #ccdac5;
+  background: #edf4e7;
+  padding: 27px;
+}
+.feature-link svg {
+  color: var(--green);
+}
+.feature-link h3 {
+  font-size: 21px;
+}
+.feature-link p {
+  font-size: 13px;
+}
+.feature-link:hover {
+  background: #e4eedc;
+}
+.workspace .detail-grid {
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr);
+  align-items: start;
+}
+.workspace .card h2 {
+  font-size: 22px;
+}
+.workspace .card h3 {
+  font-size: 18px;
+}
+.workspace .card p {
+  font-size: 13px;
+}
+.workspace .card {
+  min-width: 0;
+}
+.custody-card {
+  border-top: 3px solid var(--green);
+}
+.custody-card .grid {
+  gap: 15px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.custody-card .metrics strong {
+  font-size: 25px;
+}
+.custody-card .metrics .eyebrow {
+  font-size: 8px;
+}
+.custody-card > p {
+  border-top: 1px solid var(--border);
+  margin-top: 22px;
+  padding-top: 15px;
+}
+.source-card .evidence-row {
+  padding: 18px;
+  background: #f6f8f3;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 14px 0;
+}
+.evidence-row .mono {
+  color: #53664e;
+  margin: 7px 0;
+  font-size: 11px;
+}
+.evidence-row a {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+}
+.source-card > label {
+  background: #f5f8f0;
+  border: 1px dashed #9cb38e;
+  padding: 18px;
+  border-radius: 8px;
+  line-height: 1.7;
+}
+.source-card input {
+  margin-top: 12px;
+}
+.empty-state {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  background: #f5f7f2;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: #53664e;
+}
+.timeline-event {
+  position: relative;
+  border-top: 0;
+  padding: 16px 0;
+}
+.timeline-event:not(:last-of-type):before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 43px;
+  bottom: -12px;
+  width: 1px;
+  background: #c4d3bd;
+}
+.timeline-event > div {
+  min-width: 0;
+}
+.timeline-number {
+  background: #eaf2e3;
+  color: var(--forest);
+  width: 29px;
+  height: 29px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.timeline-event strong {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.timeline-event details {
+  margin: 10px 0;
+}
+.timeline-event summary {
+  color: var(--green);
+  font-size: 12px;
+  padding: 5px 0;
+}
+.timeline-event pre,
+.timeline-event details .mono {
+  padding: 12px;
+  background: #f5f7f3;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.soil-card {
+  background: #ecf3e6;
+  border-color: #cbdcbe;
+}
+.soil-card h3 {
+  margin-top: 0;
+}
+.action-card {
+  border-top: 3px solid var(--green);
+}
+.action-card h3 {
+  margin-top: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.action-card .stack > form {
+  background: #f8faf5;
+  border: 1px solid #e1e8da;
+  border-radius: 8px;
+  padding: 16px;
+}
+.action-card button {
+  margin-top: 12px;
+}
+.anchor-card .button {
+  margin-top: 12px;
+}
+.finding-title {
+  display: block;
+  font-size: 12px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.severity-critical {
+  color: #a3231b;
+  background: #fff0ed;
+  border-color: #ecc7c0;
+}
+.severity-warning {
+  color: #815900;
+  background: #fff5dc;
+  border-color: #ecdbac;
+}
+.severity-info {
+  color: #275a7e;
+  background: #edf5fa;
+  border-color: #d1e3ee;
+}
+.form-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+}
+.form-section-heading span {
+  background: var(--sage);
+  color: var(--green);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+.form-section-heading h3 {
+  margin: 0 !important;
+}
+.create-card > form,
+.create-card > form + form {
+  margin-top: 24px;
+}
+.create-card label {
+  margin-top: 20px;
+}
+.create-card .button {
+  margin-top: 14px;
+}
+.section-conflicts svg {
+  max-width: 100%;
+}
+.section-conflicts .mono {
+  font-size: 11px;
+}
+.section-lab .card:first-child {
+  border-top: 3px solid #ae8746;
+}
+.section-lab .card h2 {
+  line-height: 1.4;
+}
+.section-analytics .metrics .card {
+  border-top-color: #648b75;
+}
+.workspace footer {
+  font-size: 11px;
+  background: #edf2e8;
+}
+.evidence-inspection {
+  max-width: 1320px;
+  padding-top: 45px;
+}
+.evidence-inspection h1 {
+  font-size: 38px;
+}
+.evidence-viewer .card {
+  border-top: 3px solid #7d9f6e;
+}
+.evidence-viewer iframe {
+  border-radius: 8px;
+  background: #f4f5f1;
+}
+.evidence-viewer textarea {
+  font-family: monospace;
+  font-size: 12px;
+}
+.evidence-viewer .button {
+  margin-bottom: 8px;
+}
+.evidence-viewer [role="status"]:not(:empty) {
+  background: var(--sage);
+  padding: 14px;
+  border-radius: 7px;
+}
+.verification-main {
+  max-width: 1100px;
+  padding-top: 54px;
+}
+.verification-main h1 {
+  font-size: 54px;
+  margin: 18px 0 30px;
+}
+.verification-main > h2 {
+  margin-top: 40px;
+}
+.verification-main .grid > .card {
+  border-top: 3px solid #7d9f6e;
+}
+.verification-main .grid > .card h2 {
+  font-size: 25px;
+  margin-top: 15px;
+}
+.verification-main > .card {
+  padding: 30px;
+}
+.verification-main .mono {
+  background: #f5f7f1;
+  border-radius: 6px;
+  padding: 12px;
+}
+.verification-main .grid {
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) {
+  .workspace aside {
+    width: 210px;
+    padding: 25px 12px;
+  }
+  .workspace aside .brand {
+    font-size: 23px;
+  }
+  .workspace main {
+    padding: 26px;
+  }
+  .workspace .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .workspace {
+    display: block;
+  }
+  .workspace aside {
+    position: relative;
+    height: auto;
+    width: 100%;
+    padding: 20px 16px 15px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .workspace aside .brand {
+    width: 100%;
+    margin-bottom: 14px;
+  }
+  .workspace aside > .eyebrow,
+  .workspace aside .aside-bottom {
+    display: none;
+  }
+  .workspace aside > a:not(.brand) {
+    font-size: 11px;
+    padding: 12px 10px;
+    gap: 6px;
+    margin: 0;
+    min-height: 44px;
+  }
+  .workspace aside > a.active {
+    box-shadow: inset 0 -2px #c6df9f;
+  }
+  .workspace header {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  .workspace main {
+    padding: 24px 16px;
+  }
+  .page-heading h1 {
+    font-size: 28px;
+  }
+  .page-heading > .button {
+    margin-top: 0;
+  }
+  .metrics .card {
+    padding: 16px;
+  }
+  .metrics strong {
+    font-size: 25px;
+  }
+  .workspace .grid.metrics {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .workspace .custody-card .grid.metrics {
+    grid-template-columns: 1fr;
+  }
+  .custody-card .metrics > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+  }
+  .custody-card .metrics strong {
+    margin: 0;
+  }
+  .workspace .card {
+    padding: 20px;
+  }
+  .workspace .card h2 {
+    font-size: 21px;
+  }
+  .workspace .detail-grid {
+    gap: 18px;
+  }
+  .evidence-inspection,
+  .verification-main {
+    padding: 32px 20px;
+  }
+  .verification-main h1 {
+    font-size: 38px;
+  }
+  .verification-main h2 {
+    overflow-wrap: anywhere;
   }
 }

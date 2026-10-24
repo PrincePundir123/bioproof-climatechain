@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { getPublicProof } from "@/lib/public-proof";
+import { PublicNavigation, PublicFooter } from "@/components/public-shell";
+import { StatusBadge } from "@/components/status-badge";
 export const dynamic = "force-dynamic";
 export default async function Verify({
   params,
@@ -20,14 +22,8 @@ export default async function Verify({
   });
   return (
     <>
-      <nav>
-        <Link className="brand" href="/">
-          ◈ BioProof
-        </Link>
-        <Link href="/methodology">Verification boundaries</Link>
-        <Link href="/demo">Explore demo</Link>
-      </nav>
-      <main style={{ maxWidth: 1000 }}>
+      <PublicNavigation />
+      <main className="verification-main">
         <span className="eyebrow">Independent public inspection</span>
         <h1>Follow the proof.</h1>
         <div className="row space" style={{ marginBottom: 25 }}>
@@ -86,7 +82,7 @@ export default async function Verify({
                 {b.pickup?.kg ?? "Not recorded"} kg collected →{" "}
                 {b.intake?.kg ?? "Not recorded"} kg received
               </p>
-              <span className="badge">{b.status.replaceAll("_", " ")}</span>
+              <StatusBadge status={b.status} />
               <p>{b.decision?.summary ?? "Independent review pending."}</p>
               {b.outstandingDispute && (
                 <p className="warning">
@@ -133,6 +129,7 @@ export default async function Verify({
         </p>
         <Link href={"/api/verify/" + id}>Download public proof JSON →</Link>
       </main>
+      <PublicFooter />
     </>
   );
 }
