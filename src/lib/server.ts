@@ -1,13 +1,108 @@
-import 'server-only';
-import {createClient} from '@supabase/supabase-js';
-import {createServerClient} from '@supabase/ssr';
-import {cookies} from 'next/headers';
-import type {Actor,Batch,Role} from './domain';
-export const configured=()=>Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY&&process.env.SUPABASE_SERVICE_ROLE_KEY);
-export function db(){if(!configured())throw new Error('Supabase is not configured');return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});}
-export async function authClient(){const jar=await cookies();return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{cookies:{getAll:()=>jar.getAll(),setAll:values=>values.forEach(({name,value,options})=>jar.set(name,value,options))}});}
-export async function actor():Promise<Actor>{if(!configured())throw new Error('Supabase is not configured');const client=await authClient();const {data,error}=await client.auth.getUser();if(error||!data.user)throw new Error('Authentication required');const {data:p}=await db().from('profiles').select('id,role').eq('id',data.user.id).single();if(!p)throw new Error('Profile required');return {id:p.id,role:p.role as Role};}
-export async function batches(){const {data,error}=await db().from('residue_batches').select('document,version').order('created_at',{ascending:false}).limit(1000);if(error)throw new Error('Database read failed');return (data??[]).map(r=>({batch:r.document as Batch,version:r.version as number}));}
-export async function saveBatch(batch:Batch,version:number,key:string,actorId:string){const {error}=await db().rpc('commit_batch',{p_document:batch,p_expected_version:version,p_key:key,p_actor:actorId});if(error)throw new Error('Transaction rejected. Reload the record before retrying.');}
-export function checkOrigin(request:Request){const origin=request.headers.get('origin');if(!origin||origin!==new URL(request.url).origin)throw new Error('Invalid request origin');}
-export function failure(error:unknown){const message=error instanceof Error?error.message:'Request failed';const safe=/required|permitted|denied|configured|transition|finding|Custody|Independent|Transaction rejected|origin|Invalid|Positive|Evidence|File|Upload|Network|AI|Receipt|not found|limit/i.test(message);return Response.json({error:safe?message:'The request could not be completed.'},{status:/Authentication/.test(message)?401:/denied|permitted|Independent|origin/.test(message)?403:/configured/.test(message)?503:400});}
+import "server-only";
+import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Actor, Batch, Role } from "./domain";
+export const configured = () =>
+  Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  );
+export function db() {
+  if (!configured()) throw new Error("Supabase is not configured");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+}
+export async function authClient() {
+  const jar = await cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => jar.getAll(),
+        setAll: (values) => {
+          try {
+            values.forEach(({ name, value, options }) =>
+              jar.set(name, value, options),
+            );
+          } catch {
+            /* Server Component is read-only; proxy.ts refreshes cookies. */
+          }
+        },
+      },
+    },
+  );
+}
+export async function actor(): Promise<Actor> {
+  if (!configured()) throw new Error("Supabase is not configured");
+  const client = await authClient();
+  const { data, error } = await client.auth.getUser();
+  if (error || !data.user) throw new Error("Authentication required");
+  const { data: p } = await db()
+    .from("profiles")
+    .select("id,role")
+    .eq("id", data.user.id)
+    .single();
+  if (!p) throw new Error("Profile required");
+  return { id: p.id, role: p.role as Role };
+}
+export async function batches() {
+  const { data, error, count } = await db()
+    .from("residue_batches")
+    .select("document,version", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .limit(1000);
+  if (error) throw new Error("Database read failed");
+  if ((count ?? 0) > 1000)
+    throw new Error(
+      "Workspace record limit exceeded; indexed conflict lookup is required before expanding this deployment",
+    );
+  return (data ?? []).map((r) => ({
+    batch: r.document as Batch,
+    version: r.version as number,
+  }));
+}
+export async function saveBatch(
+  batch: Batch,
+  version: number,
+  key: string,
+  actorId: string,
+) {
+  const { error } = await db().rpc("commit_batch", {
+    p_document: batch,
+    p_expected_version: version,
+    p_key: key,
+    p_actor: actorId,
+  });
+  if (error)
+    throw new Error("Transaction rejected. Reload the record before retrying.");
+}
+export function checkOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin || origin !== new URL(request.url).origin)
+    throw new Error("Invalid request origin");
+}
+export function failure(error: unknown) {
+  const message = error instanceof Error ? error.message : "Request failed";
+  const safe =
+    /required|permitted|denied|configured|transition|finding|Custody|Independent|Transaction rejected|origin|Invalid|Positive|Evidence|File|Upload|Network|AI|Receipt|not found|limit/i.test(
+      message,
+    );
+  return Response.json(
+    { error: safe ? message : "The request could not be completed." },
+    {
+      status: /Authentication/.test(message)
+        ? 401
+        : /denied|permitted|Independent|origin/.test(message)
+          ? 403
+          : /configured/.test(message)
+            ? 503
+            : 400,
+    },
+  );
+}

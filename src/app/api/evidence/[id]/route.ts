@@ -72,18 +72,16 @@ export async function POST(
       evidenceIds: [evidenceId],
       payload: { sha256: hash, type },
     });
-    const { error: insertError } = await db()
-      .from("evidence_assets")
-      .insert({
-        id: evidenceId,
-        batch_id: id,
-        uploaded_by: a.id,
-        storage_path: path,
-        sha256_hash: hash,
-        file_type: file.type,
-        file_size: file.size,
-        document_type: type,
-      });
+    const { error: insertError } = await db().from("evidence_assets").insert({
+      id: evidenceId,
+      batch_id: id,
+      uploaded_by: a.id,
+      storage_path: path,
+      sha256_hash: hash,
+      file_type: file.type,
+      file_size: file.size,
+      document_type: type,
+    });
     if (insertError) throw new Error("Evidence metadata failed");
     try {
       await saveBatch(b, row.version, key, a.id);

@@ -19,7 +19,7 @@ create index event_batch_idx on public.audit_events(batch_id);
 
 -- Server APIs authenticate each request, derive actors from Auth, and enforce domain permissions.
 -- No browser role can mutate evidence history or select private tables directly.
-do $$ declare t text; begin foreach t in array array['profiles','farm_plots','residue_batches','audit_events','evidence_assets','collection_events','processor_receipts','conflict_findings','audit_decisions','disputes','ai_extractions','proof_anchors','request_keys'] loop execute format('alter table public.%I enable row level security',t); execute format('revoke all on public.%I from anon, authenticated',t); end loop; end $$;
+do $$ declare t text; begin foreach t in array array['profiles','farm_plots','residue_batches','audit_events','evidence_assets','collection_events','processor_receipts','conflict_findings','audit_decisions','disputes','ai_extractions','proof_anchors','request_keys'] loop execute format('alter table public.%I enable row level security',t); execute format('revoke all on public.%I from anon, authenticated',t); execute format('grant select, insert, update, delete on public.%I to service_role',t); end loop; end $$;
 grant select on public.profiles to authenticated;
 create policy own_profile on public.profiles for select to authenticated using (id=auth.uid());
 create function public.new_profile() returns trigger language plpgsql security definer set search_path=public as $$begin insert into public.profiles(id,full_name) values(new.id,coalesce(new.raw_user_meta_data->>'full_name','New farmer')); return new; end$$;

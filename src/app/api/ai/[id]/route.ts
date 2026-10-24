@@ -37,8 +37,12 @@ export async function POST(
       .limit(1)
       .maybeSingle();
     if (existing) return Response.json(existing);
-    const {data:allowed,error:limitError}=await db().rpc('consume_ai_attempt',{p_actor:a.id});
-    if(limitError||!allowed)throw new Error('AI hourly usage limit reached');
+    const { data: allowed, error: limitError } = await db().rpc(
+      "consume_ai_attempt",
+      { p_actor: a.id },
+    );
+    if (limitError || !allowed)
+      throw new Error("AI hourly usage limit reached");
     const { count } = await db()
       .from("ai_extractions")
       .select("id", { count: "exact", head: true })
