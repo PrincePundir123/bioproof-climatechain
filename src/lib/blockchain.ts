@@ -1,6 +1,7 @@
 import "server-only";
 import { Contract, JsonRpcProvider, Wallet, id } from "ethers";
 export const registryAbi = [
+  "function authority() view returns(address)",
   "function anchor(bytes32 batchId,bytes32 root,uint64 version)",
   "function latest(bytes32) view returns(bytes32 root,uint64 version)",
   "function verify(bytes32,bytes32,uint64) view returns(bool)",
@@ -25,13 +26,19 @@ export async function registry(sign = false) {
   const runner = sign
     ? new Wallet(process.env.ANCHOR_PRIVATE_KEY!, provider)
     : provider;
-  return {
-    contract: new Contract(
-      process.env.EVIDENCE_REGISTRY_ADDRESS!,
-      registryAbi,
-      runner,
-    ),
-    provider,
-  };
+  const contract = new Contract(
+    process.env.EVIDENCE_REGISTRY_ADDRESS!,
+    registryAbi,
+    runner,
+  );
+  if ((await provider.getCode(process.env.EVIDENCE_REGISTRY_ADDRESS!)) === "0x")
+    throw new Error("Network registry contract not found");
+  if (
+    sign &&
+    (await contract.authority()).toLowerCase() !==
+      (runner as Wallet).address.toLowerCase()
+  )
+    throw new Error("Invalid registry authority for configured signer");
+  return { contract, provider };
 }
 export const batchKey = (batchId: string) => id(batchId);
