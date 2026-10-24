@@ -30,6 +30,7 @@ export default function Login() {
             onSubmit={async (e) => {
               e.preventDefault();
               setBusy(true);
+              setError("");
               const f = new FormData(e.currentTarget);
               try {
                 const r = await fetch("/api/auth", {
@@ -56,7 +57,6 @@ export default function Login() {
                 name="password"
                 type="password"
                 required
-                minLength={8}
                 autoComplete="current-password"
               />
             </label>

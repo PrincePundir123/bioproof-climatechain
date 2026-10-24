@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     checkOrigin(request);
     if (!configured()) throw new Error("Supabase is not configured");
     const data = z
-      .object({ email: z.email(), password: z.string().min(8).max(200) })
+      .object({ email: z.email(), password: z.string().min(1).max(200) })
       .parse(await request.json());
     const { error } = await (await authClient()).auth.signInWithPassword(data);
     if (error) throw new Error("Invalid credentials");
