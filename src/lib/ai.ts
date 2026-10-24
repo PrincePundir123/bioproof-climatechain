@@ -18,7 +18,7 @@ export async function extract(bytes: Uint8Array, mime: string) {
     throw new Error(
       "AI extraction unavailable: GEMINI_API_KEY is not configured. Use manual confirmation.",
     );
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {

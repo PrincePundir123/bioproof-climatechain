@@ -69,3 +69,20 @@ it("does not expose provider response details on errors", async () => {
     "AI provider unavailable",
   );
 });
+
+it("defaults to the model verified for new Gemini accounts", async () => {
+  vi.stubEnv("GEMINI_MODEL", "");
+  const fetcher = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      candidates: [{ content: { parts: [{ text: JSON.stringify(fields) }] } }],
+    }),
+  });
+  vi.stubGlobal("fetch", fetcher);
+  expect((await extract(new Uint8Array([1]), "image/png")).model).toBe(
+    "gemini-3.1-flash-lite",
+  );
+  expect(fetcher.mock.calls[0][0]).toContain(
+    "/models/gemini-3.1-flash-lite:generateContent",
+  );
+});

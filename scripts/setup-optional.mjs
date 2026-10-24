@@ -15,7 +15,7 @@ const wallet = process.env.ANCHOR_PRIVATE_KEY?.trim()
 setMissing("ANCHOR_PRIVATE_KEY", wallet.privateKey);
 setMissing("SEPOLIA_RPC_URL", "https://ethereum-sepolia-rpc.publicnode.com");
 setMissing("GEMINI_API_KEY", "");
-setMissing("GEMINI_MODEL", "gemini-2.5-flash");
+setMissing("GEMINI_MODEL", "gemini-3.1-flash-lite");
 setMissing("EVIDENCE_REGISTRY_ADDRESS", "");
 fs.writeFileSync(path, content, { mode: 0o600 });
 console.log(

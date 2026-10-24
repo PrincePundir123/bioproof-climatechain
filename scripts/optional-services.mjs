@@ -10,7 +10,7 @@ import {
 export async function checkGemini(env = process.env, fetcher = fetch) {
   if (!env.GEMINI_API_KEY?.trim())
     return { ready: false, message: "Add GEMINI_API_KEY to .env.local." };
-  const model = env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+  const model = env.GEMINI_MODEL?.trim() || "gemini-3.1-flash-lite";
   try {
     const response = await fetcher(
       "https://generativelanguage.googleapis.com/v1beta/models/" +
