@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Actor, Batch, Role } from "./domain";
+export { checkOrigin } from "./request-origin";
 export const configured = () =>
   Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -81,11 +82,6 @@ export async function saveBatch(
   });
   if (error)
     throw new Error("Transaction rejected. Reload the record before retrying.");
-}
-export function checkOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin || origin !== new URL(request.url).origin)
-    throw new Error("Invalid request origin");
 }
 export function failure(error: unknown) {
   const message = error instanceof Error ? error.message : "Request failed";
