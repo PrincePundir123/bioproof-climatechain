@@ -10,6 +10,10 @@ const state = vi.hoisted(() => ({
   db: vi.fn(),
   batches: vi.fn(),
   saveBatch: vi.fn(),
+  extract: vi.fn(),
+  anchor: vi.fn(),
+  receipt: vi.fn(),
+  verify: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/server", async (original) => ({
@@ -23,6 +27,23 @@ vi.mock("@/lib/server", async (original) => ({
   batches: state.batches,
   saveBatch: state.saveBatch,
 }));
+vi.mock("@/lib/ai", async (original) => ({
+  ...(await original<typeof import("../src/lib/ai")>()),
+  extract: state.extract,
+}));
+vi.mock("@/lib/blockchain", async (original) => ({
+  ...(await original<typeof import("../src/lib/blockchain")>()),
+  chainConfigured: () => true,
+  registry: async () => ({
+    contract: { anchor: state.anchor, verify: state.verify },
+    provider: { getTransactionReceipt: state.receipt },
+  }),
+}));
+import {
+  POST as extractEvidence,
+  PATCH as confirmExtraction,
+} from "../src/app/api/ai/[id]/route";
+import { POST as anchorProof } from "../src/app/api/anchor/[id]/route";
 import { POST as create } from "../src/app/api/workspace/route";
 import { POST as action } from "../src/app/api/batches/[id]/route";
 import {
@@ -58,10 +79,18 @@ const objects = new Map<string, Uint8Array>();
 // Narrow Supabase transport adapter: actual SQL migrations and commit_batch run
 // in PGlite; authentication identity and private object storage are test doubles.
 function table(name: string) {
-  if (!["farm_plots", "evidence_assets", "proof_anchors"].includes(name))
+  if (
+    ![
+      "farm_plots",
+      "evidence_assets",
+      "proof_anchors",
+      "ai_extractions",
+    ].includes(name)
+  )
     throw new Error("Unexpected table " + name);
   let inserted: Record<string, unknown> | undefined;
   let deleting = false;
+  let updated: Record<string, unknown> | undefined;
   const filters: [string, unknown][] = [];
   async function execute() {
     try {
@@ -72,11 +101,23 @@ function table(name: string) {
         for (const key of keys) {
           if (!/^[a-z_][a-z0-9_]*$/.test(key))
             throw new Error("Invalid column");
-          values.push(inserted[key]);
+          values.push(
+            typeof inserted[key] === "object"
+              ? JSON.stringify(inserted[key])
+              : inserted[key],
+          );
         }
         sql = `insert into ${name}(${keys.join(",")}) values(${keys.map((_, i) => "$" + (i + 1)).join(",")}) returning *`;
       } else {
-        sql = deleting ? `delete from ${name}` : `select * from ${name}`;
+        if (updated) {
+          const assignments = Object.entries(updated).map(([column, value]) => {
+            if (!/^[a-z_][a-z0-9_]*$/.test(column))
+              throw new Error("Invalid column");
+            values.push(value);
+            return column + "=$" + values.length;
+          });
+          sql = `update ${name} set ${assignments.join(",")}`;
+        } else sql = deleting ? `delete from ${name}` : `select * from ${name}`;
         if (filters.length)
           sql +=
             " where " +
@@ -101,6 +142,10 @@ function table(name: string) {
       inserted = value;
       return query;
     },
+    update: (value: Record<string, unknown>) => {
+      updated = value;
+      return query;
+    },
     delete: () => {
       deleting = true;
       return query;
@@ -120,6 +165,24 @@ function table(name: string) {
 }
 
 beforeAll(async () => {
+  vi.stubEnv("GEMINI_API_KEY", "test-only-key");
+  state.extract.mockResolvedValue({
+    model: "test-model",
+    fields: {
+      documentType: "Receipt",
+      receiptNumber: "AUTOMATED-TEST-1000",
+      documentDate: "2026-10-25",
+      weight: 1000,
+      unit: "kg",
+      vehicleIdentifier: null,
+      facilityName: "Test facility",
+      relevantText: "AUTOMATED TEST extraction",
+      uncertainties: [],
+    },
+  });
+  state.anchor.mockResolvedValue({ hash: "0x" + "1".repeat(64) });
+  state.receipt.mockResolvedValue(null);
+  state.verify.mockResolvedValue(true);
   pg = new PGlite();
   await pg.exec(
     "create role anon; create role authenticated; create role service_role; create schema auth; create table auth.users(id uuid primary key,raw_user_meta_data jsonb); create function auth.uid() returns uuid language sql as 'select null::uuid'; create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit integer,allowed_mime_types text[]);",
@@ -163,12 +226,24 @@ beforeAll(async () => {
   );
   state.db.mockReturnValue({
     from: table,
+    rpc: async (name: string, args: { p_actor: string }) => {
+      if (name !== "reserve_ai_attempt") throw new Error("Unexpected RPC");
+      const result = await pg.query<{ reserve_ai_attempt: string }>(
+        "select reserve_ai_attempt($1)",
+        [args.p_actor],
+      );
+      return { data: result.rows[0].reserve_ai_attempt, error: null };
+    },
     storage: {
       from: () => ({
         upload: async (path: string, bytes: Uint8Array) => {
           objects.set(path, bytes);
           return { error: null };
         },
+        download: async (path: string) => ({
+          data: new Blob([new Uint8Array(objects.get(path)!)]),
+          error: objects.has(path) ? null : new Error("Missing object"),
+        }),
         remove: async (paths: string[]) => {
           paths.forEach((path) => objects.delete(path));
           return { error: null };
@@ -186,6 +261,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await pg?.close();
   objects.clear();
+  vi.unstubAllEnvs();
 });
 
 function request(path: string, body: unknown, key = crypto.randomUUID()) {
@@ -323,6 +399,64 @@ it("persists one complete batch from farmer creation to independent audit and re
   );
   expect(batch.evidence).toHaveLength(2);
   expect(objects.size).toBe(2);
+  const intakeEvidenceId = batch.evidence.find((e) => e.type === "intake")!.id;
+  state.actor = auditor;
+  expect(
+    (
+      await extractEvidence(
+        request("/api/ai/" + intakeEvidenceId, {}),
+        params(intakeEvidenceId),
+      )
+    ).status,
+  ).toBe(403);
+  expect(state.extract).not.toHaveBeenCalled();
+  state.actor = processor;
+  const extraction = await expectJson(
+    await extractEvidence(
+      request("/api/ai/" + intakeEvidenceId, {}),
+      params(intakeEvidenceId),
+    ),
+  );
+  expect(extraction.extracted_fields_json.weight).toBe(batch.intake!.kg);
+  expect(extraction.extracted_fields_json.receiptNumber).toBe(
+    batch.intake!.receipt,
+  );
+  expect(state.extract).toHaveBeenCalledOnce();
+  const cached = await expectJson(
+    await extractEvidence(
+      request("/api/ai/" + intakeEvidenceId, {}),
+      params(intakeEvidenceId),
+    ),
+  );
+  expect(cached.id).toBe(extraction.id);
+  expect(state.extract).toHaveBeenCalledOnce();
+  expect(
+    (await pg.query("select * from ai_attempt_reservations")).rows,
+  ).toHaveLength(1);
+  const confirmRequest = request(
+    "/api/ai/" + intakeEvidenceId,
+    extraction.extracted_fields_json,
+  );
+  await expectJson(
+    await confirmExtraction(
+      new Request(confirmRequest, { method: "PATCH" }),
+      params(intakeEvidenceId),
+    ),
+  );
+  batch = (await state.batches())[0].batch;
+  expect(batch.events.at(-1)?.type).toBe("EXTRACTION_CONFIRMED");
+  expect(batch.events.at(-1)?.evidenceIds).toContain(intakeEvidenceId);
+  expect(batch.intake!.kg).toBe(1000); // Confirming AI never changes measurements.
+  expect((await verifyChain(batch.events)).valid).toBe(true);
+  expect(
+    (await anchorProof(request("/api/anchor/" + id, {}), params(id))).status,
+  ).toBe(403);
+  expect(state.anchor).not.toHaveBeenCalled();
+  state.actor = auditor;
+  expect(
+    (await anchorProof(request("/api/anchor/" + id, {}), params(id))).status,
+  ).toBe(400);
+  expect(state.anchor).not.toHaveBeenCalled();
   batch = await act(processor, { type: "REQUEST_REVIEW" });
   expect(batch.status).toBe("UNDER_REVIEW");
   expect(batch.findings).toEqual([]);
@@ -408,6 +542,53 @@ it("persists one complete batch from farmer creation to independent audit and re
   expect(html).toContain("/api/verify/" + id);
   expect(html).not.toContain("AUTOMATED-TEST-pickup.png");
   expect(html).not.toContain(farmer.id);
+  state.actor = auditor;
+  const submitted = await expectJson(
+    await anchorProof(request("/api/anchor/" + id, {}), params(id)),
+  );
+  expect(submitted.transactionHash).toBe("0x" + "1".repeat(64));
+  expect(state.anchor).toHaveBeenCalledOnce();
+  const pending = await expectJson(
+    await anchorProof(request("/api/anchor/" + id, {}), params(id)),
+  );
+  expect(pending.message).toContain("pending confirmation");
+  expect(state.anchor).toHaveBeenCalledOnce();
+  state.receipt.mockResolvedValue({ status: 1 });
+  const confirmed = await expectJson(
+    await anchorProof(request("/api/anchor/" + id, {}), params(id)),
+  );
+  expect(confirmed.message).toContain("Confirmed transaction");
+  expect(state.anchor).toHaveBeenCalledOnce();
+  expect(
+    (
+      await pg.query<{ confirmation_status: string }>(
+        "select confirmation_status from proof_anchors",
+      )
+    ).rows[0].confirmation_status,
+  ).toBe("CONFIRMED");
+  state.actor = null;
+  const anchoredProof = await proof(200);
+  expect(anchoredProof.record.anchor.status).toBe("CONFIRMED");
+  expect(anchoredProof.chainCheck).toContain(
+    "matches the approved event prefix",
+  );
+  expect(state.verify).toHaveBeenCalledWith(
+    expect.stringMatching(/^0x[0-9a-f]{64}$/),
+    "0x" + batch.events.at(-1)!.hash,
+    batch.events.length,
+  );
+  const anchoredHtml = renderToStaticMarkup(await VerifyPage(params(id)));
+  expect(anchoredHtml).toContain("Confirmed anchor");
+  expect(anchoredHtml).toContain(
+    "https://sepolia.etherscan.io/tx/" + submitted.transactionHash,
+  );
+  expect(anchoredHtml).not.toContain(batch.evidence[0].storagePath);
+  state.verify.mockResolvedValue(false);
+  expect((await proof(200)).record.anchor.status).toBe("FAILED");
+  expect(renderToStaticMarkup(await VerifyPage(params(id)))).toContain(
+    "No confirmed anchor",
+  );
+  state.verify.mockResolvedValue(true);
   state.actor = outsider;
   expect(
     (
