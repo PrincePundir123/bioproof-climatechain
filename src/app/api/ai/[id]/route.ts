@@ -37,17 +37,23 @@ export async function POST(
       .limit(1)
       .maybeSingle();
     if (existing) return Response.json(existing);
-    const { data: allowed, error: limitError } = await db().rpc(
-      "consume_ai_attempt",
+    if (!process.env.GEMINI_API_KEY)
+      throw new Error(
+        "AI extraction is not configured. Use manual confirmation.",
+      );
+    const { data: allowance, error: limitError } = await db().rpc(
+      "reserve_ai_attempt",
       { p_actor: a.id },
     );
-    if (limitError || !allowed)
+    if (limitError)
+      throw new Error(
+        "AI quota check unavailable; ensure database migration 003 is applied.",
+      );
+    if (allowance === "DAILY_LIMIT")
+      throw new Error("AI daily usage limit reached");
+    if (allowance === "HOURLY_LIMIT")
       throw new Error("AI hourly usage limit reached");
-    const { count } = await db()
-      .from("ai_extractions")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", new Date(Date.now() - 86400000).toISOString());
-    if ((count ?? 0) >= 100) throw new Error("AI daily usage limit reached");
+    if (allowance !== "ALLOWED") throw new Error("AI quota check unavailable");
     const { data, error } = await db()
       .storage.from("evidence")
       .download(e.storage_path);

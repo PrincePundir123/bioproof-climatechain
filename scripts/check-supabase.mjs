@@ -56,7 +56,7 @@ async function main() {
     );
   }
   const spec = await (await expectOk("/rest/v1/", "RPC discovery")).json();
-  for (const name of ["commit_batch", "consume_ai_attempt"]) {
+  for (const name of ["commit_batch", "consume_ai_attempt", "reserve_ai_attempt"]) {
     if (!spec.paths?.[`/rpc/${name}`])
       throw new Error(`Missing function ${name}`);
   }

@@ -20,6 +20,9 @@ beforeAll(async () => {
   ).replace("create extension if not exists pgcrypto;", "");
   await pg.exec(sql);
   await pg.exec(readFileSync("supabase/migrations/002_ai_limits.sql", "utf8"));
+  await pg.exec(
+    readFileSync("supabase/migrations/003_atomic_ai_budget.sql", "utf8"),
+  );
   await pg.query("insert into auth.users values($1,$3),($2,$3)", [
     farmer,
     collector,
@@ -156,4 +159,63 @@ it("database triggers protect history and browsers have no private table access"
     "permission denied",
   );
   await pg.exec("reset role");
+});
+
+it("reserves the final daily AI slot once and includes failed calls in usage", async () => {
+  await pg.exec("delete from ai_usage; delete from ai_attempt_reservations");
+  await pg.query(
+    "insert into ai_attempt_reservations(actor_id) select $1 from generate_series(1,99)",
+    [farmer],
+  );
+  const results = await Promise.all(
+    Array.from({ length: 5 }, () =>
+      pg.query<{ reserve_ai_attempt: string }>(
+        "select reserve_ai_attempt($1)",
+        [collector],
+      ),
+    ),
+  );
+  expect(
+    results.filter((r) => r.rows[0].reserve_ai_attempt === "ALLOWED"),
+  ).toHaveLength(1);
+  expect(
+    results.filter((r) => r.rows[0].reserve_ai_attempt === "DAILY_LIMIT"),
+  ).toHaveLength(4);
+  await pg.exec(
+    "update ai_attempt_reservations set reserved_at=now()-interval '25 hours'",
+  );
+  expect(
+    (
+      await pg.query<{ reserve_ai_attempt: string }>(
+        "select reserve_ai_attempt($1)",
+        [collector],
+      )
+    ).rows[0].reserve_ai_attempt,
+  ).toBe("ALLOWED");
+  await pg.exec("set role authenticated");
+  await expect(
+    pg.query("select reserve_ai_attempt($1)", [collector]),
+  ).rejects.toThrow("permission denied");
+  await pg.exec("reset role");
+});
+
+it("enforces hourly quota through the new reservation endpoint", async () => {
+  await pg.exec("delete from ai_usage; delete from ai_attempt_reservations");
+  const results = await Promise.all(
+    Array.from({ length: 12 }, () =>
+      pg.query<{ reserve_ai_attempt: string }>(
+        "select reserve_ai_attempt($1)",
+        [farmer],
+      ),
+    ),
+  );
+  expect(
+    results.filter((r) => r.rows[0].reserve_ai_attempt === "ALLOWED"),
+  ).toHaveLength(10);
+  expect(
+    results.filter((r) => r.rows[0].reserve_ai_attempt === "HOURLY_LIMIT"),
+  ).toHaveLength(2);
+  expect(
+    (await pg.query("select * from ai_attempt_reservations")).rows,
+  ).toHaveLength(10);
 });
