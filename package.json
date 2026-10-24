@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "test:batch": "vitest run tests/complete-batch.test.ts",
+    "test:batch:browser": "playwright test tests/browser/complete-batch.spec.ts",
     "test:e2e": "playwright test",
     "test:contract": "node scripts/test-contract.mjs",
     "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs",
