@@ -61,8 +61,8 @@ export default async function Verify({
                 : "No confirmed anchor"}
             </h2>
             <p>
-            {proof.chainCheck}. {b.anchor.status.replaceAll("_", " ")}. A local proof is not a
-              blockchain transaction.
+              {proof.chainCheck}. {b.anchor.status.replaceAll("_", " ")}. A
+              local proof is not a blockchain transaction.
             </p>
             {b.anchor.transactionHash && (
               <a
