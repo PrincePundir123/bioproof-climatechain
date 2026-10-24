@@ -7,3 +7,4 @@ test-results/
 coverage/
 *.tsbuildinfo
 .vercel/
+next-env.d.ts
