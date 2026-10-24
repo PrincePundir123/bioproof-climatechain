@@ -1,6 +1,6 @@
 # Local release status
 
-BioProof is prepared for local use. External services are intentionally unconfigured, as requested. The synthetic demo runs without credentials; operational APIs require configured Supabase accounts.
+BioProof runs locally with Supabase configured in the developer's ignored `.env.local`. The synthetic demo also runs without credentials. Deployment, Gemini and Sepolia remain unconfigured.
 
 ## Validation
 
@@ -15,7 +15,11 @@ PostgreSQL tests run through PGlite with Auth/Storage schema fixtures. They do n
 
 ## Service setup still required
 
-Follow the README to apply both SQL migrations, configure Supabase environment variables, and provision independent role accounts. Gemini extraction and Sepolia anchoring are optional and need their own credentials. Vercel configuration and CI are included; no hosted deployment, funded transaction or external account setup has been performed.
+Both SQL migrations and four independent role accounts are now configured in the user's Supabase project. Read-only integration checks pass for all 14 tables, anonymous-access denial, both RPCs, the private evidence bucket and two persisted batch hash chains. One batch is declared and one remains a draft. No pickup, intake or evidence upload has yet been recorded. This verifies configuration and stored integrity, not the complete hosted workflow.
+
+The follow-up run passed all 23 unit/SQL tests, 14 desktop/mobile browser tests against the running local server, and ESLint. Browser custody tests use the synthetic demo. Run `npm run check:supabase` to repeat the live read-only checks.
+
+Gemini extraction and Sepolia anchoring need their own credentials. Vercel configuration and CI are included; no hosted application deployment or funded transaction has been performed.
 
 Before using real evidence, exercise the complete hosted custody/upload/review flow with separate accounts, inspect public redaction, and test configured extraction and anchoring. The demo data and source documents are explicitly synthetic.
 

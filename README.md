@@ -74,6 +74,8 @@ See [architecture](docs/ARCHITECTURE.md), [data model](docs/DATA_MODEL.md), and 
 5. Assign separate COLLECTOR, PROCESSOR and AUDITOR profiles as a trusted administrator.
 6. Sign in at /login, register a plot, create a batch, declare it, and continue with independent accounts.
 
+Run `npm run check:supabase` after configuration. This read-only check validates the project URL, server table access, anonymous access denial, private bucket, RPC availability and saved batch hash chains. Use the project origin URL only, without `/rest/v1/`. It never prints keys or private record contents. See [live workflow steps](docs/LIVE_WORKFLOW.md) for the remaining account actions.
+
 Administrator-only role assignment:
 
 ```sql
