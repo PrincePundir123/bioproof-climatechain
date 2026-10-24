@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import workspacePreview from "../../public/images/bioproof/workspace-preview-final.png";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -226,9 +227,7 @@ export default function Home() {
               <small>BioProof / Synthetic demo workspace</small>
             </div>
             <Image
-              src="/images/bioproof/workspace-preview.png"
-              width={1440}
-              height={1000}
+              src={workspacePreview}
               alt="BioProof synthetic demo showing batch records and investigation actions"
               sizes="(max-width: 900px) 100vw, 800px"
             />

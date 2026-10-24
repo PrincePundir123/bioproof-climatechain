@@ -278,6 +278,9 @@ export function Workspace({
             Workspace / {section === "detail" ? "Batch dossier" : title}
           </span>
           <div className="row">
+            <span className="badge environment-badge">
+              {demo ? "SYNTHETIC DATA" : "PRIVATE WORKSPACE"}
+            </span>
             {demo ? (
               <>
                 <label htmlFor="role" style={{ margin: 0 }}>
