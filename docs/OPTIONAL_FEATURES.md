@@ -3,17 +3,21 @@
 ## Current local status
 
 - Supabase is configured, including migration 003.
-- PublicNode Sepolia RPC was checked against chain 11155111.
-- A dedicated testnet signer was generated in ignored .env.local.
-- Public signer address: 0x722aEA4101DFFF8b26711F3F2Ca36d4472681371
-- Remaining: Gemini API key, Sepolia test ETH and registry deployment.
-- No contract has been deployed and no AI provider call has been made.
+- PublicNode Sepolia RPC verified against chain 11155111.
+- Dedicated signer funded with 0.01 Sepolia test ETH.
+- Signer: 0x722aEA4101DFFF8b26711F3F2Ca36d4472681371
+- Registry deployed and confirmed: 0x299a81458a942CbAc39A24C95c7175CE758d9E26
+- Deployment transaction: 0xe4321a06caf361cb9e3731d62a4e6b23ae1caaa125f2eeb22f329e036bb4e9d7
+- Registry authority matches the local signer.
+- Gemini key verified; synthetic PDF extraction passed using gemini-3.1-flash-lite.
+- Google rejected gemini-2.5-flash generation for this new account, despite model metadata listing it.
+- No real evidence was sent during the smoke test; no live custody record was changed.
 
 ## Gemini extraction
 
 1. Open https://aistudio.google.com/apikey and create an API key for your project.
 2. Open .env.local locally and set GEMINI_API_KEY to that key. Do not post it in chat.
-3. Keep GEMINI_MODEL=gemini-2.5-flash initially; the check verifies access to that model.
+3. Use GEMINI_MODEL=gemini-3.1-flash-lite; the check verifies access to that model.
 4. Run npm run check:optional. The Gemini check reads model metadata without generating content.
 5. Restart Next.js after changing environment variables (rebuild before npm start).
 6. Sign in as the account that uploaded an evidence document, open it and select Request AI extraction.

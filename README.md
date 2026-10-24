@@ -102,7 +102,7 @@ for the account actions and remaining configuration.
 | NEXT_PUBLIC_SUPABASE_ANON_KEY               | Public project key; RLS denies private tables       |
 | SUPABASE_SERVICE_ROLE_KEY                   | Server-only database/storage credential             |
 | GEMINI_API_KEY                              | Optional server-only extraction credential          |
-| GEMINI_MODEL                                | Configurable model, default gemini-2.5-flash        |
+| GEMINI_MODEL                                | Configurable model, default gemini-3.1-flash-lite   |
 | SEPOLIA_RPC_URL                             | Optional Sepolia RPC                                |
 | ANCHOR_PRIVATE_KEY                          | Server-only funded testnet signer                   |
 | EVIDENCE_REGISTRY_ADDRESS                   | Deployed registry address                           |
