@@ -1,1 +1,46 @@
-{"name":"bioproof","version":"0.1.0","private":true,"scripts":{"dev":"next dev","build":"next build","start":"next start","lint":"eslint .","typecheck":"tsc --noEmit","test":"vitest run","test:e2e":"playwright test"},"dependencies":{"next":"^16.4.3","react":"^19.2.0","react-dom":"^19.2.0","@supabase/supabase-js":"^2.100.0","@supabase/ssr":"^0.8.0","zod":"^4.3.0","ethers":"^6.16.0","lucide-react":"^0.577.0","qrcode":"^1.5.4"},"devDependencies":{"typescript":"^5.9.3","@types/node":"^24.0.0","@types/react":"^19.2.0","@types/react-dom":"^19.2.0","@types/qrcode":"^1.5.6","eslint":"^9.39.0","eslint-config-next":"^16.4.3","vitest":"^4.0.0","@playwright/test":"^1.58.0","tailwindcss":"^4.2.0","@tailwindcss/postcss":"^4.2.0"}}
+{
+  "name": "bioproof",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:contract": "node scripts/test-contract.mjs",
+    "deploy:contract": "node --env-file=.env.local scripts/deploy-contract.mjs",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.100.0",
+    "ethers": "^6.16.0",
+    "lucide-react": "^0.577.0",
+    "next": "^16.4.3",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.3.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
+    "@playwright/test": "^1.58.0",
+    "@tailwindcss/postcss": "^4.2.0",
+    "@types/node": "^24.0.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.4.3",
+    "hardhat": "^3.21.0",
+    "prettier": "^3.9.10",
+    "solc": "^0.8.36",
+    "tailwindcss": "^4.2.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.0"
+  },
+  "type": "module"
+}
