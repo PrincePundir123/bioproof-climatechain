@@ -114,7 +114,7 @@ Ethereum Sepolia, Vercel, Zod, Vitest, Playwright, Hardhat, PGlite.
 - Review the final preview and click Submit project / the final submission action.
 - Confirm Devpost shows the project as submitted to this hackathon, not merely saved as a draft.
 
-Deadline shown on the official page: 25 October 2026, 17:00 UTC+03 = 19:30 IST.
+Deadline rechecked 25 October 2026: 26 October 2026, 00:00 UTC+03 = 26 October 2026, 02:30 IST.
 Official overview: https://ieee-climatechain-hack.devpost.com/
 Official rules: https://ieee-climatechain-hack.devpost.com/rules
 The overview and rules give different eligibility summaries; use the actual registration

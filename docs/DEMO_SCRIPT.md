@@ -1,5 +1,7 @@
 # StubbleTrail demo recording
 
+For a spoken 4:40 presentation, use [the timed narration script](VIDEO_NARRATION.md).
+
 The prepared captioned video is docs/submission/stubbletrail-demo.webm.
 It records a local production preview of the application and labeled synthetic demo scenarios. The public deployment link is included separately in the submission.
 Target duration: approximately 4 minutes 15 seconds. It has embedded captions and no voice narration.
