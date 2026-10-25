@@ -8,3 +8,7 @@ coverage/
 *.tsbuildinfo
 .vercel/
 next-env.d.ts
+
+# Generated submission recordings; upload the finished video to a video host.
+docs/submission/*.webm
+docs/submission/video-scenes.json
