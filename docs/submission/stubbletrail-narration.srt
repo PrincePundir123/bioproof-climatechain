@@ -1,0 +1,175 @@
+1
+00:00:00,000 --> 00:00:07,843
+Hi, I'm [your name], the solo developer of StubbleTrail, built for the Sustainable Supply Chains track.
+
+2
+00:00:07,843 --> 00:00:15,196
+StubbleTrail connects agricultural residue to an inspectable evidence trail, from farmer declaration to independent review.
+
+3
+00:00:15,196 --> 00:00:25,000
+The question behind this project is simple: when a sustainability claim is made, can we examine the records supporting it?
+
+4
+00:00:25,000 --> 00:00:26,875
+Consider this synthetic example.
+
+5
+00:00:26,875 --> 00:00:33,438
+A collector records six hundred kilograms, but the processor receives five hundred and sixty.
+
+6
+00:00:33,438 --> 00:00:37,656
+Without connected records, the difference is difficult to investigate.
+
+7
+00:00:37,656 --> 00:00:41,875
+A receipt might also be reused across separate claims.
+
+8
+00:00:41,875 --> 00:00:50,313
+StubbleTrail brings measurements, documents and accountable decisions together, helping reviewers investigate discrepancies before relying on a supply-chain claim.
+
+9
+00:00:50,313 --> 00:00:55,000
+These examples demonstrate the prototype; they are not field-pilot results.
+
+10
+00:00:55,000 --> 00:00:57,800
+The workflow has four distinct roles.
+
+11
+00:00:57,800 --> 00:01:02,000
+A farmer registers a plot and declares available residue.
+
+12
+00:01:02,000 --> 00:01:06,667
+A collector records pickup quantity, measurement basis and event time.
+
+13
+00:01:06,667 --> 00:01:11,333
+A processor independently records intake, the facility and receipt details.
+
+14
+00:01:11,333 --> 00:01:20,200
+Supporting documents are attached to the batch, and an auditor reviews the evidence and findings before recording a decision.
+
+15
+00:01:20,200 --> 00:01:30,000
+In the operational application, permissions are checked on the server; the role selector shown here belongs only to the isolated demo.
+
+16
+00:01:30,000 --> 00:01:32,532
+AI assists with document reading.
+
+17
+00:01:32,532 --> 00:01:41,139
+The Gemini integration has been verified using a synthetic PDF, extracting its receipt number and weight correctly.
+
+18
+00:01:41,139 --> 00:01:51,266
+In the application, the uploader can request structured fields, compare each suggestion with the original document and correct uncertain values.
+
+19
+00:01:51,266 --> 00:01:59,873
+Confirmation appends a review event; it does not silently replace a custody measurement or approve the batch.
+
+20
+00:01:59,873 --> 00:02:06,456
+Original files remain private, and extraction requests are subject to database-enforced usage limits.
+
+21
+00:02:06,456 --> 00:02:10,000
+Human accountability remains part of the process.
+
+22
+00:02:10,000 --> 00:02:12,612
+StubbleTrail also looks across claims.
+
+23
+00:02:12,612 --> 00:02:18,881
+Here, two synthetic batches share a receipt identifier and identical file bytes.
+
+24
+00:02:18,881 --> 00:02:25,149
+The graph makes that relationship visible, while the reviewer documents an explanation.
+
+25
+00:02:25,149 --> 00:02:30,373
+A match is an investigation signal, not proof of fraud.
+
+26
+00:02:30,373 --> 00:02:36,119
+SoilSafe adds another question: how much residue is proposed for removal?
+
+27
+00:02:36,119 --> 00:02:45,000
+It keeps soil cover, nutrients and site-specific review in view, without claiming a universal safe removal threshold.
+
+28
+00:02:45,000 --> 00:02:52,671
+Each event is linked to the previous event through a canonical SHA-256 hash chain.
+
+29
+00:02:52,671 --> 00:03:04,178
+Let me demonstrate the integrity check: the recorded chain verifies, but changing a quantity in this copied event produces a mismatch.
+
+30
+00:03:04,178 --> 00:03:06,918
+The original record remains unchanged.
+
+31
+00:03:06,918 --> 00:03:11,301
+This makes alterations detectable against the recorded history.
+
+32
+00:03:11,301 --> 00:03:25,000
+It is not a guarantee against a database administrator rewriting an unanchored chain, which is why the project also supports external commitments on Ethereum Sepolia.
+
+33
+00:03:25,000 --> 00:03:33,750
+The public portal presents a redacted record, custody summary and verification result without exposing private source files or identities.
+
+34
+00:03:33,750 --> 00:03:39,276
+The Solidity registry is deployed on Sepolia with a verified signing authority.
+
+35
+00:03:39,276 --> 00:03:44,803
+Approved real records can commit their approved event root to that contract.
+
+36
+00:03:44,803 --> 00:03:50,789
+A confirmed status requires both a successful transaction and a matching registry proof.
+
+37
+00:03:50,789 --> 00:03:54,474
+This synthetic sample intentionally shows no confirmed anchor.
+
+38
+00:03:54,474 --> 00:04:00,000
+Blockchain helps verify record integrity; it cannot prove a physical delivery occurred.
+
+39
+00:04:00,000 --> 00:04:08,000
+The prototype is deployed, with Supabase authentication and private storage, Gemini extraction, and the Sepolia registry.
+
+40
+00:04:08,000 --> 00:04:17,000
+Ninety-three automated unit, API and database tests pass, alongside desktop and mobile workflow tests and local contract checks.
+
+41
+00:04:17,000 --> 00:04:22,000
+The intended users are cooperatives, residue aggregators and independent reviewers.
+
+42
+00:04:22,000 --> 00:04:30,000
+Next steps include hosted acceptance testing, organization-scoped access, scalable conflict queries and a documented field pilot.
+
+43
+00:04:30,000 --> 00:04:39,000
+StubbleTrail aims to make sustainable supply-chain claims easier to examine, without presenting recorded quantities as certified climate benefits.
+
+44
+00:04:39,000 --> 00:04:40,000
+Thank you.
