@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph CLIENT["Trust boundary · untrusted browser"]
+    B["1 · Browser application<br/>Workspace and public visitor"]
+  end
+  subgraph APP["Trust boundary · Next.js server on Vercel"]
+    R["2 · Request and authorization layer"]
+    C["4 · Custody, conflict and hash rules"]
+    E["7 · Evidence extraction module"]
+    A["9 · Anchor orchestration module"]
+    P["11 · Public proof service"]
+  end
+  subgraph SB["Trust boundary · managed Supabase project"]
+    U["3 · Supabase Auth"]
+    D[("5 · PostgreSQL + commit_batch")]
+    S["6 · Private evidence storage"]
+  end
+  subgraph GOOGLE["Trust boundary · external AI provider"]
+    G["8 · Google Gemini · optional"]
+  end
+  subgraph ETH["Trust boundary · public testnet"]
+    T["10 · Sepolia RPC + Solidity registry · optional"]
+  end
+  B ==>|"1 · HTTPS action"| R
+  R ==>|"2 · validated actor + action"| C
+  C ==>|"3 · atomic commit RPC"| D
+  R -.->|"validate session"| U
+  R -.->|"private evidence access"| S
+  R -.-> E
+  E -.->|"authorized document bytes"| G
+  R -.-> A
+  A -.->|"approved root commitment"| T
+  B -.->|"public inspection"| P
+  P -.->|"read records"| D
+  P -.->|"check receipt + proof"| T
+  classDef core fill:#eaf3ed,stroke:#256b50,color:#153b2e;
+  classDef dependency fill:#f4f3ed,stroke:#8b876d,color:#323c32;
+  class B,R,C,E,A,P core;
+  class U,D,S,G,T dependency;

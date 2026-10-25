@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>StubbleTrail · runtime architecture</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter,
+          Segoe UI,
+          Arial,
+          sans-serif;
+        color: #193b2e;
+        background: #f8f9f6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 1600px;
+        padding: 36px 32px 64px;
+        margin: auto;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: #687b6e;
+        font-weight: 700;
+      }
+      h1 {
+        font-size: 36px;
+        margin: 9px 0 12px;
+        letter-spacing: -1px;
+      }
+      header p {
+        max-width: 950px;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #52675a;
+      }
+      .notice {
+        border-left: 3px solid #a7884e;
+        background: #f1eee5;
+        padding: 13px 18px;
+        margin: 20px 0;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        font-size: 13px;
+        margin: 20px 0;
+      }
+      .legend b {
+        color: #267357;
+      }
+      .frame {
+        background: #fff;
+        border: 1px solid #dbe2db;
+        border-radius: 16px;
+        padding: 15px;
+        overflow: auto;
+        box-shadow: 0 5px 22px #193b2e06;
+      }
+      svg {
+        display: block;
+        width: 100%;
+        min-width: 1100px;
+      }
+      .boundary-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        fill: #385445;
+      }
+      .boundary-sub {
+        font-size: 10px;
+        fill: #69776d;
+      }
+      .edge {
+        fill: none;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+      .primary {
+        stroke: #267357;
+        stroke-width: 3.5;
+      }
+      .secondary {
+        stroke: #899489;
+        stroke-width: 1.5;
+        stroke-dasharray: 5 5;
+      }
+      .edge-label {
+        font-size: 10px;
+        fill: #267357;
+        font-weight: 600;
+      }
+      .node {
+        cursor: pointer;
+        outline: none;
+      }
+      .node rect {
+        fill: white;
+        stroke: #b5c8bb;
+        stroke-width: 1.5;
+      }
+      .node:hover rect,
+      .node:focus rect,
+      .node.selected rect {
+        stroke: #267357;
+        stroke-width: 3;
+        fill: #f3faf4;
+      }
+      .number {
+        font-size: 11px;
+        fill: #748979;
+        font-weight: 700;
+      }
+      .node-title {
+        font-size: 15px;
+        font-weight: 650;
+        fill: #183e2d;
+      }
+      .node-sub {
+        font-size: 10px;
+        fill: #617668;
+      }
+      h2 {
+        font-size: 24px;
+        margin-top: 34px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        border: 1px solid #dbe2db;
+        border-radius: 13px;
+        background: white;
+        padding: 22px;
+        scroll-margin-top: 20px;
+        transition: box-shadow 0.15s;
+      }
+      .card.selected {
+        border: 2px solid #267357;
+        box-shadow: 0 0 0 5px #26735713;
+      }
+      .card h3 {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      .card p {
+        font-size: 14px;
+        line-height: 1.7;
+        color: #475f50;
+      }
+      code {
+        font-size: 12px;
+        background: #f0f3ed;
+        border-radius: 4px;
+        padding: 2px 4px;
+        overflow-wrap: anywhere;
+      }
+      a {
+        color: #20684b;
+      }
+      footer {
+        margin-top: 30px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #617668;
+      }
+      .boundary-notes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+      }
+      .boundary-notes section {
+        padding: 18px;
+        background: #edf2eb;
+        border-radius: 10px;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+      .boundary-notes strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+      @media print {
+        main {
+          padding: 5px;
+        }
+        svg {
+          min-width: 0;
+        }
+        .frame {
+          box-shadow: none;
+        }
+        .card {
+          break-inside: avoid;
+        }
+        .notice {
+          font-size: 11px;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 22px 15px;
+        }
+        h1 {
+          font-size: 28px;
+        }
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="eyebrow">STUBBLETRAIL / BIOPROOF · REPOSITORY ANALYSIS</div>
+        <h1>From a custody action to an auditable record.</h1>
+        <p>
+          11 logical runtime components. One primary write path. Supporting
+          detail stays in cards rather than extra arrows. Modules inside the
+          application boundary run in the same Next.js deployment.
+        </p>
+      </header>
+      <div class="notice">
+        <strong>Tool availability:</strong> Archify was not available in this
+        session or the plugin search. This is a local, repository-backed
+        diagram, not an Archify export.
+      </div>
+      <div class="legend">
+        <span
+          ><b>━━ Primary:</b> browser → authorization → rules → atomic
+          commit</span
+        ><span
+          >┄┄ Secondary: Auth, files, optional integrations and public
+          inspection</span
+        ><span>Dashed containers: trust / credential boundaries</span>
+      </div>
+      <div class="frame">
+        <svg
+          viewBox="0 0 1450 840"
+          role="img"
+          aria-labelledby="diagram-title diagram-description"
+        >
+          <title id="diagram-title">
+            StubbleTrail high-level runtime architecture
+          </title>
+          <desc id="diagram-description">
+            Eleven components across browser, Next.js application, Supabase,
+            Gemini and Sepolia trust boundaries. The highlighted primary path
+            runs from browser through server authorization and custody rules to
+            PostgreSQL. Select a component for its supporting card.
+          </desc>
+          <defs>
+            <marker
+              id="arrow-primary"
+              markerWidth="9"
+              markerHeight="9"
+              refX="8"
+              refY="4"
+              orient="auto"
+            >
+              <path d="M0 0L8 4L0 8" fill="#267357" />
+            </marker>
+            <marker
+              id="arrow-secondary"
+              markerWidth="8"
+              markerHeight="8"
+              refX="7"
+              refY="4"
+              orient="auto"
+            >
+              <path d="M0 0L7 4L0 8" fill="#899489" />
+            </marker>
+          </defs>
+          <rect
+            x="25"
+            y="75"
+            width="220"
+            height="735"
+            rx="16"
+            fill="#f0eee7"
+            stroke="#b7c6b9"
+            stroke-dasharray="5 5"
+          />
+          <text class="boundary-title" x="43" y="100">BROWSER</text>
+          <text class="boundary-sub" x="43" y="119">Untrusted client</text>
+          <rect
+            x="270"
+            y="75"
+            width="700"
+            height="735"
+            rx="16"
+            fill="#eef5f0"
+            stroke="#b7c6b9"
+            stroke-dasharray="5 5"
+          />
+          <text class="boundary-title" x="288" y="100">NEXT.JS ON VERCEL</text>
+          <text class="boundary-sub" x="288" y="119">
+            Trusted application · one deployment
+          </text>
+          <rect
+            x="1010"
+            y="75"
+            width="410"
+            height="365"
+            rx="16"
+            fill="#f5f3eb"
+            stroke="#b7c6b9"
+            stroke-dasharray="5 5"
+          />
+          <text class="boundary-title" x="1028" y="100">SUPABASE PROJECT</text>
+          <text class="boundary-sub" x="1028" y="119">
+            External managed Auth, data + storage
+          </text>
+          <rect
+            x="1010"
+            y="470"
+            width="410"
+            height="130"
+            rx="16"
+            fill="#f1f1f7"
+            stroke="#b7c6b9"
+            stroke-dasharray="5 5"
+          />
+          <text class="boundary-title" x="1028" y="495">GOOGLE</text>
+          <text class="boundary-sub" x="1028" y="514">
+            External provider · document bytes leave the app
+          </text>
+          <rect
+            x="1010"
+            y="620"
+            width="410"
+            height="190"
+            rx="16"
+            fill="#f4f0f5"
+            stroke="#b7c6b9"
+            stroke-dasharray="5 5"
+          />
+          <text class="boundary-title" x="1028" y="645">ETHEREUM SEPOLIA</text>
+          <text class="boundary-sub" x="1028" y="664">
+            Public testnet · roots, never source files
+          </text>
+          <path
+            d="M220 285 H300"
+            class="edge primary"
+            marker-end="url(#arrow-primary)"
+          />
+          <path
+            d="M530 275 H650"
+            class="edge primary"
+            marker-end="url(#arrow-primary)"
+          />
+          <path
+            d="M910 275 H1060"
+            class="edge primary"
+            marker-end="url(#arrow-primary)"
+          />
+          <path
+            d="M415 230 V160 H1060"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M530 295 H585 V382 H1060"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M340 320 V450"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M550 495 H990 V555 H1060"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M530 305 H600 V585 H780 V650"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M910 695 H1060"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M145 340 V695 H300"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M550 675 H965 V305 H1060"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <path
+            d="M550 715 H620 V780 H990 V735 H1060"
+            class="edge secondary"
+            marker-end="url(#arrow-secondary)"
+          />
+          <text class="edge-label" x="245" y="270">HTTPS</text>
+          <text class="edge-label" x="548" y="258">validated action</text>
+          <text class="edge-label" x="924" y="258">atomic RPC</text>
+          <g
+            class="node"
+            data-id="1"
+            tabindex="0"
+            role="button"
+            aria-label="1. Browser application: open supporting card"
+          >
+            <rect x="60" y="230" width="160" height="110" rx="11" />
+            <text class="number" x="74" y="250">01</text>
+            <text class="node-title" x="74" y="269">Browser</text>
+            <text class="node-title" x="74" y="289">application</text>
+            <text class="node-sub" x="74" y="328">Workspace + public</text>
+          </g>
+          <g
+            class="node"
+            data-id="2"
+            tabindex="0"
+            role="button"
+            aria-label="2. Request + authorization: open supporting card"
+          >
+            <rect x="300" y="230" width="230" height="90" rx="11" />
+            <text class="number" x="314" y="250">02</text>
+            <text class="node-title" x="314" y="269">
+              Request + authorization
+            </text>
+            <text class="node-sub" x="314" y="308">
+              Next.js routes / server pages
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="3"
+            tabindex="0"
+            role="button"
+            aria-label="3. Supabase Auth: open supporting card"
+          >
+            <rect x="1060" y="125" width="300" height="70" rx="11" />
+            <text class="number" x="1074" y="145">03</text>
+            <text class="node-title" x="1074" y="164">Supabase Auth</text>
+            <text class="node-sub" x="1074" y="183">
+              Cookie-backed identity
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="4"
+            tabindex="0"
+            role="button"
+            aria-label="4. Custody + conflict rules: open supporting card"
+          >
+            <rect x="650" y="230" width="260" height="90" rx="11" />
+            <text class="number" x="664" y="250">04</text>
+            <text class="node-title" x="664" y="269">
+              Custody + conflict rules
+            </text>
+            <text class="node-sub" x="664" y="308">
+              Transitions / findings / hashes
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="5"
+            tabindex="0"
+            role="button"
+            aria-label="5. PostgreSQL: open supporting card"
+          >
+            <rect x="1060" y="230" width="300" height="95" rx="11" />
+            <text class="number" x="1074" y="250">05</text>
+            <text class="node-title" x="1074" y="269">PostgreSQL</text>
+            <text class="node-sub" x="1074" y="313">
+              commit_batch / records / metadata
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="6"
+            tabindex="0"
+            role="button"
+            aria-label="6. Private evidence storage: open supporting card"
+          >
+            <rect x="1060" y="350" width="300" height="65" rx="11" />
+            <text class="number" x="1074" y="370">06</text>
+            <text class="node-title" x="1074" y="389">
+              Private evidence storage
+            </text>
+            <text class="node-sub" x="1074" y="403">
+              Private files + signed access
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="7"
+            tabindex="0"
+            role="button"
+            aria-label="7. Evidence extraction: open supporting card"
+          >
+            <rect x="300" y="450" width="250" height="90" rx="11" />
+            <text class="number" x="314" y="470">07</text>
+            <text class="node-title" x="314" y="489">Evidence extraction</text>
+            <text class="node-sub" x="314" y="528">
+              Uploader checks / quota / review
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="8"
+            tabindex="0"
+            role="button"
+            aria-label="8. Google Gemini: open supporting card"
+          >
+            <rect x="1060" y="520" width="300" height="70" rx="11" />
+            <text class="number" x="1074" y="540">08</text>
+            <text class="node-title" x="1074" y="559">Google Gemini</text>
+            <text class="node-sub" x="1074" y="578">
+              Optional external extraction
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="9"
+            tabindex="0"
+            role="button"
+            aria-label="9. Anchor orchestration: open supporting card"
+          >
+            <rect x="650" y="650" width="260" height="90" rx="11" />
+            <text class="number" x="664" y="670">09</text>
+            <text class="node-title" x="664" y="689">Anchor orchestration</text>
+            <text class="node-sub" x="664" y="728">
+              Approved root / reserve / broadcast
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="10"
+            tabindex="0"
+            role="button"
+            aria-label="10. Sepolia RPC + registry: open supporting card"
+          >
+            <rect x="1060" y="680" width="300" height="90" rx="11" />
+            <text class="number" x="1074" y="700">10</text>
+            <text class="node-title" x="1074" y="719">
+              Sepolia RPC + registry
+            </text>
+            <text class="node-sub" x="1074" y="758">
+              Optional public root commitment
+            </text>
+          </g>
+          <g
+            class="node"
+            data-id="11"
+            tabindex="0"
+            role="button"
+            aria-label="11. Public proof service: open supporting card"
+          >
+            <rect x="300" y="650" width="250" height="90" rx="11" />
+            <text class="number" x="314" y="670">11</text>
+            <text class="node-title" x="314" y="689">Public proof service</text>
+            <text class="node-sub" x="314" y="728">
+              Redaction / local + chain checks
+            </text>
+          </g>
+        </svg>
+      </div>
+      <p style="font-size: 13px; color: #65786b">
+        Select a component or press Enter to jump to its card. Return responses
+        and supporting database calls are deliberately summarized below.
+      </p>
+      <h2>Where trust changes</h2>
+      <div class="boundary-notes">
+        <section>
+          <strong>Browser → server</strong>Client roles, cookies, JSON and
+          documents are not trusted. Server validation resolves the actor and
+          checks each operation.
+        </section>
+        <section>
+          <strong>Server → Supabase</strong>The service-role credential can
+          bypass RLS. Authorization in the application and private bucket
+          configuration are essential.
+        </section>
+        <section>
+          <strong>Server → external providers</strong>Gemini receives authorized
+          document bytes. Sepolia receives public root commitments. Their
+          responses require validation.
+        </section>
+        <section>
+          <strong>Private → public output</strong>The proof service applies a
+          redacted projection. Public hashes are not the complete private event
+          payloads.
+        </section>
+      </div>
+      <h2>Supporting cards</h2>
+      <div class="cards">
+        <article class="card" id="card-1">
+          <h3>01 · Browser application</h3>
+          <p>
+            Authenticated farmers, collectors, processors and auditors use the
+            shared React workspace. Public visitors inspect a separate redacted
+            view. The browser and uploaded documents are untrusted input. No
+            service-role key, Gemini key or signing private key belongs in the
+            client. The demo uses isolated React memory and the shared rules; it
+            does not write production records.
+          </p>
+          <p>
+            Sources: <a href="../../src/components/workspace.tsx">workspace</a>,
+            <a href="../../src/components/demo-provider.tsx">demo provider</a>.
+          </p>
+        </article>
+        <article class="card" id="card-2">
+          <h3>02 · Request and authorization layer</h3>
+          <p>
+            Next.js route handlers and private server pages validate the user
+            with <code>auth.getUser()</code>, derive the role from a protected
+            profile and apply record access checks. Mutating endpoints check
+            origin and validate their inputs. The dashboard proxy refreshes
+            cookies; it is not the authorization boundary. Initial server
+            rendering also reads data through the server helpers.
+          </p>
+          <p>
+            Sources: <a href="../../src/lib/server.ts">server helpers</a>,
+            <a href="../../src/app/api/batches/[id]/route.ts">batch handler</a>,
+            <a href="../../src/lib/request-origin.ts">origin check</a>,
+            <a href="../../src/proxy.ts">proxy</a>.
+          </p>
+        </article>
+        <article class="card" id="card-3">
+          <h3>03 · Supabase Auth</h3>
+          <p>
+            The server validates cookie-backed sessions using Supabase SSR.
+            Authorization additionally depends on the profile stored in
+            PostgreSQL; the authenticated identity alone does not supply a
+            trusted role. Auth and PostgreSQL interactions are both part of
+            resolving an actor, even though only one session-validation edge is
+            drawn.
+          </p>
+          <p>
+            Source: <a href="../../src/lib/server.ts">actor and Auth client</a>.
+          </p>
+        </article>
+        <article class="card" id="card-4">
+          <h3>04 · Custody, conflict and hash rules</h3>
+          <p>
+            Shared TypeScript modules evaluate transitions, separation of roles,
+            receipt/file conflicts, measurements and SoilSafe context. Events
+            include canonical content and the previous event hash. A matching
+            chain detects changes relative to an expected history; it does not
+            establish that the physical observations were true. The same modules
+            support the isolated demo.
+          </p>
+          <p>
+            Sources: <a href="../../src/lib/domain.ts">domain</a>,
+            <a href="../../src/lib/workflow.ts">workflow</a>,
+            <a href="../../src/lib/proof.ts">proof</a>.
+          </p>
+        </article>
+        <article class="card" id="card-5">
+          <h3>05 · PostgreSQL and transactional commit</h3>
+          <p>
+            Supabase PostgreSQL stores the batch document and normalized
+            profiles, plots, evidence metadata, events, findings, decisions,
+            extraction results and anchor reservations.
+            <code>commit_batch</code> serializes custody writes with an advisory
+            lock, checks the expected version and immutable prefix, appends an
+            event and updates projections atomically. Private tables and RPCs
+            deny direct browser roles; the server uses a service-role
+            credential, so its authorization checks are essential. The workspace
+            currently rejects datasets above 1,000 records.
+          </p>
+          <p>
+            Sources:
+            <a href="../../supabase/migrations/001_evidence.sql"
+              >core migration</a
+            >, <a href="../../src/lib/server.ts">server persistence</a>.
+          </p>
+        </article>
+        <article class="card" id="card-6">
+          <h3>06 · Private evidence storage</h3>
+          <p>
+            The server validates file signatures and size, hashes actual bytes
+            and uploads to a private Supabase bucket. Authorized readers receive
+            60-second signed links; possession of such a link temporarily grants
+            access to its object. Uploads, metadata insertion and the batch
+            commit are not one transaction. The handler compensates for ordinary
+            failures, but process termination can leave an orphaned object. The
+            AI module reads source bytes from the same private bucket; that
+            extra edge is intentionally omitted.
+          </p>
+          <p>
+            Sources:
+            <a href="../../src/app/api/evidence/[id]/route.ts"
+              >evidence handler</a
+            >, <a href="../../src/lib/files.ts">file validation</a>.
+          </p>
+        </article>
+        <article class="card" id="card-7">
+          <h3>07 · Evidence extraction module</h3>
+          <p>
+            The uploader must be authenticated, able to read the batch and own
+            the evidence asset. Existing extraction results are reused. New
+            attempts reserve budget in PostgreSQL before source bytes are
+            downloaded and sent to Gemini. Limits are ten per actor per hour and
+            100 shared attempts in a rolling 24-hour window; failed provider
+            calls consume budget. Suggestions are saved separately. Explicit
+            confirmation appends an event via the normal commit path and does
+            not replace custody measurements or approve a claim.
+            Database/storage edges are summarized here to keep the canvas
+            sparse.
+          </p>
+          <p>
+            Sources:
+            <a href="../../src/app/api/ai/[id]/route.ts">AI handler</a>,
+            <a href="../../supabase/migrations/003_atomic_ai_budget.sql"
+              >atomic quota migration</a
+            >.
+          </p>
+        </article>
+        <article class="card" id="card-8">
+          <h3>08 · Google Gemini</h3>
+          <p>
+            An optional external provider receives the authorized document bytes
+            and extraction instructions. Its output is untrusted: the server
+            parses JSON through a strict Zod schema, and the user reviews
+            suggestions. The call has a 30-second timeout and grants no
+            application tools. Manual structured confirmation remains available
+            without Gemini.
+          </p>
+          <p>
+            Source: <a href="../../src/lib/ai.ts">Gemini client and schema</a>.
+          </p>
+        </article>
+        <article class="card" id="card-9">
+          <h3>09 · Anchor orchestration module</h3>
+          <p>
+            Auditors or administrators can request a commitment for an approved
+            nonsynthetic batch with a valid chain. The server selects the latest
+            approved event prefix, reserves the root in PostgreSQL and
+            broadcasts using a server-held signer. The transaction hash and
+            status are persisted. An uncertain broadcast is not blindly retried:
+            the reservation requires reconciliation. Signer, reservation and
+            persistence details belong in this card rather than three more
+            nodes.
+          </p>
+          <p>
+            Sources:
+            <a href="../../src/app/api/anchor/[id]/route.ts">anchor handler</a>,
+            <a href="../../src/lib/blockchain.ts">blockchain client</a>.
+          </p>
+        </article>
+        <article class="card" id="card-10">
+          <h3>10 · Sepolia RPC and Solidity registry</h3>
+          <p>
+            The configured public RPC connects the server to Ethereum Sepolia.
+            The server checks the chain, deployed contract and signing
+            authority. The registry stores a batch-key/root/version commitment,
+            not private evidence. A successful receipt and matching registry
+            proof are both required for confirmation. A network problem is not
+            evidence of success. Anchoring is optional and provides record
+            integrity, not proof of delivery.
+          </p>
+          <p>
+            Sources:
+            <a href="../../src/lib/blockchain.ts">blockchain client</a>,
+            <a href="../../src/lib/public-proof.ts">public proof checks</a>.
+          </p>
+        </article>
+        <article class="card" id="card-11">
+          <h3>11 · Public proof service</h3>
+          <p>
+            Both the public page and public JSON endpoint use
+            <code>getPublicProof()</code>. Synthetic examples come from
+            deterministic fixtures; real records require a recorded decision.
+            The service verifies the local chain, reads anchor metadata and
+            checks the receipt plus registry proof when configured.
+            <code>publicRecord()</code> removes private identities, file paths,
+            original files and private payloads. Public event hashes alone are
+            insufficient for full recomputation; that needs an authorized
+            private export. The browser receives the redacted projection, never
+            database credentials.
+          </p>
+          <p>
+            Sources:
+            <a href="../../src/lib/public-proof.ts">public proof service</a>,
+            <a href="../../src/lib/workflow.ts">public projection</a>,
+            <a href="../../src/app/verify/[id]/page.tsx">public page</a>.
+          </p>
+        </article>
+      </div>
+      <footer>
+        <p>
+          <a href="runtime.mmd">Editable Mermaid source</a> ·
+          <a href="RUNTIME.md">Architecture notes and source references</a>
+        </p>
+        <p>
+          Scope: current source, not a claim that every hosted integration has
+          completed acceptance testing. No worker queue, independent
+          microservices or autonomous approval agent is implied. The isolated
+          demo has no production write path.
+        </p>
+      </footer>
+    </main>
+    <script>
+      function select(id) {
+        document
+          .querySelectorAll(".selected")
+          .forEach((el) => el.classList.remove("selected"));
+        document
+          .querySelector('.node[data-id="' + id + '"]')
+          .classList.add("selected");
+        const card = document.getElementById("card-" + id);
+        card.classList.add("selected");
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#card-" + id);
+      }
+      document.querySelectorAll(".node").forEach((el) => {
+        el.addEventListener("click", () => select(el.dataset.id));
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            select(el.dataset.id);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
