@@ -3,6 +3,19 @@ on: [push, pull_request]
 permissions:
   contents: read
 jobs:
+  clean-install:
+    name: Clean install (npm ${{ matrix.npm }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        npm: ["10.9.4", "11.6.2"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --global npm@${{ matrix.npm }}
+      - run: npm ci --ignore-scripts --no-audit --no-fund
   verify:
     runs-on: ubuntu-latest
     steps:
