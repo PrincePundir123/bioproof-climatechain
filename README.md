@@ -118,23 +118,55 @@ Live AI extraction and blockchain transactions require configured operational ac
 The application uses **Next.js App Router, React and TypeScript**. Supabase provides authentication, PostgreSQL and private object storage. Gemini is optional for extraction; ethers and a Solidity registry support Sepolia commitments. Zod validates incoming data. Vitest, PGlite, Playwright and local contract checks cover the main workflows.
 
 ```mermaid
-flowchart TD
-  UI[Authenticated workspace] --> API[Next.js route handlers]
-  API --> AUTH[Supabase Auth and protected profiles]
-  API --> RULES[Custody, conflict and integrity rules]
-  API --> DB[(Supabase PostgreSQL)]
-  API --> FILES[Private evidence storage]
-  API --> AI[Optional Gemini extraction]
-  API --> CHAIN[Sepolia evidence registry]
-  DEMO[Isolated synthetic demo] --> RULES
-  PUBLIC[Public verification] --> PROOF[Redacted proof service]
-  PROOF --> DB
-  PROOF --> CHAIN
+flowchart LR
+  subgraph CLIENT["Trust boundary · untrusted browser"]
+    B["1 · Browser application<br/>Workspace and public visitor"]
+  end
+  subgraph APP["Trust boundary · Next.js server on Vercel"]
+    R["2 · Request and authorization layer"]
+    C["4 · Custody, conflict and hash rules"]
+    E["7 · Evidence extraction module"]
+    A["9 · Anchor orchestration module"]
+    P["11 · Public proof service"]
+  end
+  subgraph SB["Trust boundary · managed Supabase project"]
+    U["3 · Supabase Auth"]
+    D[("5 · PostgreSQL + commit_batch")]
+    S["6 · Private evidence storage"]
+  end
+  subgraph GOOGLE["Trust boundary · external AI provider"]
+    G["8 · Google Gemini · optional"]
+  end
+  subgraph ETH["Trust boundary · public testnet"]
+    T["10 · Sepolia RPC + Solidity registry · optional"]
+  end
+  B ==>|"1 · HTTPS action"| R
+  R ==>|"2 · validated actor + action"| C
+  C ==>|"3 · atomic commit RPC"| D
+  R -.->|"validate session"| U
+  R -.->|"private evidence access"| S
+  R -.-> E
+  E -.->|"authorized document bytes"| G
+  R -.-> A
+  A -.->|"approved root commitment"| T
+  B -.->|"public inspection"| P
+  P -.->|"read records"| D
+  P -.->|"check receipt + proof"| T
+  classDef core fill:#eaf3ed,stroke:#256b50,color:#153b2e;
+  classDef dependency fill:#f4f3ed,stroke:#8b876d,color:#323c32;
+  class B,R,C,E,A,P core;
+  class U,D,S,G,T dependency;
 ```
+
+**Primary runtime path:** browser action → server authorization → custody and integrity rules → PostgreSQL transactional commit. The thick arrows follow this write path; dashed arrows show authentication, evidence access, optional integrations and public inspection.
+
+The five containers mark trust boundaries. Components within the Next.js boundary are modules of one deployment, not separate microservices.
 
 Private route handlers validate the authenticated user and derive the role from a protected profile. A database transaction checks the expected version, preserves the existing event prefix, appends the next event and updates the relational projections atomically. Files remain in private storage; the public serializer excludes private identities, source files and precise-coordinate fields.
 
-See the [architecture notes](docs/ARCHITECTURE.md), [data model](docs/DATA_MODEL.md) and [security model](docs/SECURITY.md) for implementation details.
+Read the [supporting component cards and trust-boundary notes](docs/architecture/RUNTIME.md) for details on authorization, signed file access, AI quotas, transaction safety and public redaction. An [interactive HTML version](docs/architecture/runtime.html) is available to download and open locally, alongside the [editable Mermaid source](docs/architecture/runtime.mmd).
+
+See also the [architecture notes](docs/ARCHITECTURE.md), [data model](docs/DATA_MODEL.md) and [security model](docs/SECURITY.md).
 
 ## Run locally
 
