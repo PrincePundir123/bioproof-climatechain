@@ -1,18 +1,45 @@
-# Five-minute demo storyboard
+# StubbleTrail demo recording
 
-Run npm run dev. Keep SYNTHETIC DATA labels visible. This script does not mean a video was recorded or uploaded.
+The prepared captioned video is docs/submission/stubbletrail-demo.webm.
+It records a local production preview of the application and labeled synthetic demo scenarios. The public deployment link is included separately in the submission.
+Target duration: approximately 4 minutes 15 seconds. It has embedded captions and no voice narration.
 
-| Time      | Shot and narration                                                                                                                                                                    |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0:00–0:30 | Landing. “Residue records become fragmented across farmers, collectors and processors. BioProof makes the evidence inspectable.”                                                      |
-| 0:30–1:15 | BP-001 custody and source documents. “600 kg collected, 560 received. The difference is flagged and a synthetic auditor documents a decision.”                                        |
-| 1:15–2:05 | Conflict graph, BP-002/BP-003 edge, receipt source. “Two claims use WB-2002 at one facility; file bytes match. This prompts investigation, not an automatic fraud accusation.”        |
-| 2:05–2:55 | Auditor: clarify, resolve each finding, record reasoning. “AI assists with reading; a human reviews original evidence and makes the decision.”                                        |
-| 2:55–3:40 | Replay, Verify event chain, public portal and QR. “Every event is cryptographically linked. Private data is redacted. This local demo has no confirmed testnet anchor.”               |
-| 3:40–4:05 | Lab: change copied quantity to 601. “One altered number breaks verification. The original remains unchanged.”                                                                         |
-| 4:05–4:30 | BP-004 SoilSafe. “95% proposed removal requires site-specific assessment. Collected does not automatically mean sustainable.”                                                         |
-| 4:30–5:00 | Activity and methodology. “These are recorded quantities, not certified savings. BioProof does not ask you to trust a sustainability claim. It gives you the evidence to examine it.” |
+To recreate it:
 
-If real integrations are configured before recording, show actual AI inference and a confirmed explorer transaction. Never substitute invented results.
+    npm run build
+    npm run start -- --hostname 127.0.0.1 --port 3101
+    # In another terminal:
+    node scripts/record-submission-demo.mjs
 
-For a longer live workflow, use BP-004 as Collector, attach evidence and confirm pickup; switch to Processor, attach intake evidence and confirm receipt; request review; switch to Auditor, resolve findings and approve with reasoning. Demo role switching never elevates a production account.
+Playwright Chromium must be installed. The default recording base is http://127.0.0.1:3101. Set DEMO_RECORD_BASE_URL to record another authorized preview.
+Its practice measurements, evidence bytes and auditor decision stay inside the demo session.
+It never signs into a real account or changes Supabase records.
+
+## Scenes
+
+| Approximate time | Scene                                                                         |
+| ---------------- | ----------------------------------------------------------------------------- |
+| 0:00?0:20        | StubbleTrail introduction; current interface retains the BioProof name        |
+| 0:20?0:45        | Synthetic custody example: 600 kg collected, 560 kg received                  |
+| 0:45?1:10        | Duplicate receipts and identical file bytes in the conflict graph             |
+| 1:10?1:35        | Farmer creates and declares a new synthetic batch                             |
+| 1:35?2:05        | Collector records pickup and attaches labeled test evidence                   |
+| 2:05?2:40        | Processor records intake, attaches test evidence and requests review          |
+| 2:40?3:15        | Separate demo auditor documents review, approves and verifies the event chain |
+| 3:15?3:45        | Integrity lab detects a changed event copy                                    |
+| 3:45?4:15        | Redacted public proof and QR; explicitly no confirmed anchor for the sample   |
+
+The finalized video-scenes.json records actual scene start times.
+Screenshots are generated beside the video as numbered JPEG files.
+
+## Upload and submit
+
+1. Watch the finished video once and ensure the captions and actions are readable.
+2. Upload it to a video host and set it to public or unlisted.
+3. Open the resulting link in an incognito window to confirm judges can watch it.
+4. Paste that video URL into the Devpost demo-video field.
+5. Use HACKATHON_SUBMISSION.md for the remaining project fields and story.
+
+The Sepolia registry deployment and a synthetic Gemini PDF extraction were verified separately.
+This recording does not claim that its synthetic sample has a real on-chain anchor or
+show fabricated AI output. Real field observations and independent decisions remain separate.
